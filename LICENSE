@@ -1,0 +1,152 @@
+poqi No-Sale Source License 1.0
+
+Copyright (c) 2026 poqi contributors
+
+1. Scope and permission
+
+"Software" means the poqi source code, binaries and documentation made available
+under these terms, including modifications and works derived from that material.
+Whether a work is a modification or derivative is determined by applicable
+copyright law. Merely communicating with or being packaged alongside the
+Software does not place independent code under this license.
+"Licensor" means each copyright holder offering material under these terms,
+solely to the extent of the rights that holder controls. "You" means the person
+or legal entity exercising the permissions below. The project name does not
+identify a separate legal entity or transfer ownership of anyone's contribution.
+
+Subject to these terms, each Licensor grants you a non-exclusive, worldwide,
+royalty-free copyright license, for the duration of the applicable copyright
+unless terminated under section 6, to use, copy, study, modify and distribute the
+Software and to make its functionality available remotely. Individuals and
+organizations, including businesses, may use and modify it for their own work
+and internal commercial purposes without a fee. Exercising permissions that
+require this license constitutes acceptance of its conditions. Activities
+permitted independently by law or another license do not require acceptance.
+
+Internal use includes work by your employees and contractors acting solely on
+your behalf and subject to these terms. Customers and other third parties do
+not become internal users merely because you host their access on your servers.
+Other legal entities must exercise their own rights under this license.
+
+2. No sale or paid access
+
+You may not sell, rent or charge a license, download or distribution fee for the
+Software or any modified version. You may not distribute it as part of a paid
+bundle or product, even if its price is not itemized separately. Copies must be
+provided free of charge, without a required purchase, subscription or donation.
+
+You may not use the Software to provide others with paid remote access to, or
+paid use of, its functionality, whether directly or through a hosted service,
+API, independent wrapper or modified version. This also applies when such access
+is bundled into a paid offering or is available only to paying customers,
+regardless of how the fee is named.
+This restriction does not prohibit an organization from running the Software
+on its own servers for its own internal work.
+
+This restriction does not prohibit earning money from work performed using the
+Software, including database administration and consulting, or charging for
+optional support or training. Such charges must not be a condition of receiving
+a copy of, a license to, or remote access to the Software. For example, a
+consultant may charge for administering a customer's database while operating
+the Software as a tool; that exception does not authorize selling the customer
+access to the Software's functionality. Voluntary donations are permitted if
+receiving the Software, remote access and its licensed rights does not depend
+on donating.
+Data, query results and other output are not covered merely because the Software
+was used to create or process them.
+
+3. Distribution and source code
+
+When distributing the Software, including a modified version, you must:
+
+(a) retain applicable copyright notices and provide this entire license;
+(b) license your modifications to the Software under these same terms, without
+    adding restrictions on the rights granted here;
+(c) identify that you changed the Software if you distribute a modified version;
+(d) provide the complete corresponding source code free of charge, either with
+    each copy or through a clearly identified, working download made available
+    to the same recipients for as long as you distribute or otherwise make that
+    version available. For delivery without an ongoing download offering, include
+    the corresponding source with the copy.
+    For a public distribution, the corresponding source download must also be
+    public and free of charge.
+
+"Corresponding source" means the preferred form for making modifications to
+that version, including its modifications and the build scripts needed to build
+it. It does not include general-purpose tools or separately licensed components
+that are not derived from the Software. Each recipient receives the permissions
+in this license directly from the applicable copyright holders. You need not
+publish changes kept solely for your own or your organization's internal use.
+
+4. Other rights and previously licensed material
+
+Separately licensed dependencies, models, runtimes and other third-party
+components retain their own licenses. These terms do not override those licenses
+or revoke permissions already granted under an earlier license. This license
+is offered for this distribution of the Software as a whole, subject to those
+independent rights; it is not limited to newly added files. In particular,
+material previously released under MIT remains available under those MIT terms;
+this license cannot impose a retroactive sales ban on that material. The prior
+MIT notice and terms are reproduced below for that material only, not as an
+alternative license for new contributions made solely under this license.
+The project's MIT baseline is commit
+6f7dfa0fb051c94e661e325a5a97483980ac5780. Material present in that snapshot retains
+its MIT permissions. New contributions first introduced after
+that baseline are offered under this license unless separately licensed.
+No trademark rights or endorsement by the authors are granted.
+
+5. No warranty or liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED
+"AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHORS, CONTRIBUTORS AND
+COPYRIGHT HOLDERS SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING LOSS OF DATA, PROFITS OR BUSINESS, WHETHER IN CONTRACT, TORT OR
+OTHERWISE, ARISING FROM OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+Nothing in these terms excludes liability that applicable law does not allow to
+be excluded. No support, maintenance, updates or acceptance of contributions is
+promised.
+
+6. Compliance
+
+The permissions granted by this license are conditional on compliance with its
+terms and terminate automatically if you violate them. A Licensor's grant is
+reinstated if you fully cure the violation within 30 days of first receiving
+written notice from that Licensor and this is the first such notice from that
+Licensor, or if that Licensor expressly reinstates it in writing. Reinstatement
+does not erase liability for earlier violations. Termination of your permissions
+does not terminate the direct grants to recipients who remain in compliance.
+
+If a provision cannot be enforced under applicable law, it is limited to the
+extent necessary; the remaining provisions continue to apply to the extent
+permitted by that law.
+
+This license does not limit rights you have independently under applicable law
+or another applicable license, including rights that cannot legally be waived.
+No later revision of these terms automatically changes the terms for a copy you
+already received. No rights are granted beyond those expressly stated here.
+
+--- Prior MIT license: applies only to previously MIT-licensed material ---
+
+MIT License
+
+Copyright (c) 2026 poqi contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

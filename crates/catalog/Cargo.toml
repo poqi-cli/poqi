@@ -1,0 +1,20 @@
+[package]
+name = "poqi-catalog"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+poqi-db = { path = "../db" }
+tokio = { workspace = true }
+
+[dev-dependencies]
+poqi-test-support = { path = "../tools/test-support" }
+tokio = { workspace = true, features = ["macros"] }
+
+
+[lints]
+workspace = true

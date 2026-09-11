@@ -1,0 +1,24 @@
+[package]
+name = "poqi-config"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+directories = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+toml = "0.8"
+thiserror = { workspace = true }
+bitflags = "2.10"
+poqi-store = { path = "../store" }
+
+[dev-dependencies]
+tempfile = "3.10"
+poqi-store = { path = "../store", features = ["test-support"] }
+
+
+[lints]
+workspace = true

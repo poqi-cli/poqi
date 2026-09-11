@@ -1,0 +1,13 @@
+[package]
+name = "poqi-search-completion"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+
+[dependencies]
+pg_query = { workspace = true }
+poqi-catalog = { path = "../../catalog" }
+smallvec = { workspace = true }
+
+[lints]
+workspace = true

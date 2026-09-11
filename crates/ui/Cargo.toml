@@ -1,0 +1,39 @@
+[package]
+name = "poqi-ui"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+
+[dependencies]
+async-compression = { workspace = true }
+anyhow = { workspace = true }
+ratatui = { workspace = true }
+crossterm = { workspace = true }
+poqi-catalog = { path = "../catalog" }
+poqi-config = { path = "../config" }
+poqi-engine = { path = "../engine" }
+poqi-search-completion = { path = "../search/completion" }
+poqi-search-semantic = { path = "../search/semantic" }
+poqi-store = { path = "../store" }
+pg_query = { workspace = true }
+smallvec = { workspace = true }
+tokio = { workspace = true, features = ["sync", "fs"] }
+tokio-util = { workspace = true }
+tracing = { workspace = true }
+unicode-segmentation = { workspace = true }
+unicode-width = { workspace = true }
+arboard = "3.6"
+futures = { workspace = true }
+parking_lot = { workspace = true }
+reqwest = { workspace = true }
+sha2 = { workspace = true }
+tar = { workspace = true }
+url = { workspace = true }
+zip = { workspace = true }
+
+[dev-dependencies]
+poqi-store = { path = "../store", features = ["test-support"] }
+tempfile = "3.10"
+
+[lints]
+workspace = true

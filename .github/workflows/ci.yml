@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: "Commit to validate"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build (ubuntu-latest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CARGO_TERM_COLOR: always
+      POQI_ENABLE_TESTCONTAINERS: "1"
+      POQI_TESTCONTAINERS_PG_TAG: "18-alpine@sha256:d3e1620b530c944afa6e887d22eb899824da68e19c52024bf98f5220c88a65b2"
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.checkout_ref || github.sha }}
+
+      - name: Workflow dependency policy
+        run: pwsh -NoProfile -File scripts/test-workflows.ps1
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Tests (including PostgreSQL)
+        run: cargo test --workspace --locked
+
+      - name: Dependency audit
+        run: |
+          cargo install cargo-audit --locked
+          cargo audit
+
+      - name: CLI smoke test
+        run: |
+          cargo build --locked --bin poqi
+          target/debug/poqi --help
+
+      - name: Installer smoke tests
+        run: pwsh -NoProfile -File scripts/test-installers.ps1

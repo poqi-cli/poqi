@@ -1,0 +1,198 @@
+name: Release binaries
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  source:
+    if: >-
+      github.repository == 'poqi-cli/poqi' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'dev' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.commit.outputs.sha }}
+      tag: ${{ steps.commit.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+      - id: commit
+        name: Resolve merged source and application version
+        run: |
+          VERSION=$(python3 -c 'import tomllib; print(tomllib.load(open("crates/app/Cargo.toml", "rb"))["package"]["version"])')
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release requires a stable major.minor.patch application version" >&2
+            exit 1
+          fi
+          RELEASE_TAG="v$VERSION"
+          SOURCE_COMMIT=$(git rev-parse HEAD)
+          if git rev-parse --verify --quiet "refs/tags/$RELEASE_TAG" >/dev/null; then
+            if [ "$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")" != "$SOURCE_COMMIT" ]; then
+              echo "Version already used. Bump crates/app/Cargo.toml and Cargo.lock in dev before merging." >&2
+              exit 1
+            fi
+          fi
+          echo "sha=$SOURCE_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+  quality:
+    name: Quality and PostgreSQL integration tests
+    needs: source
+    uses: ./.github/workflows/ci.yml
+    with:
+      checkout_ref: ${{ needs.source.outputs.commit }}
+
+  credential-store:
+    name: Native credential stores
+    needs: source
+    uses: ./.github/workflows/credential-store.yml
+    with:
+      checkout_ref: ${{ needs.source.outputs.commit }}
+
+  build:
+    name: package (${{ matrix.target }})
+    needs: source
+    env:
+      RELEASE_TAG: ${{ needs.source.outputs.tag }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux-x86_64
+          - os: macos-15
+            target: macos-arm64
+          - os: macos-15-intel
+            target: macos-x86_64
+          - os: windows-2022
+            target: windows-x86_64
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.source.outputs.commit }}
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
+      - name: Build release binary
+        run: cargo build --release --locked --bin poqi
+      - name: Stage package
+        shell: bash
+        run: |
+          PACKAGE="poqi-${RELEASE_TAG}-${{ matrix.target }}"
+          mkdir -p "dist/$PACKAGE"
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cp target/release/poqi.exe "dist/$PACKAGE/"
+          else
+            cp target/release/poqi "dist/$PACKAGE/"
+          fi
+          cp README.md CHANGELOG.md LICENSE "dist/$PACKAGE/"
+      - name: Archive Unix package
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          PACKAGE="poqi-${RELEASE_TAG}-${{ matrix.target }}"
+          tar -C dist -czf "$PACKAGE.tar.gz" "$PACKAGE"
+      - name: Archive Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $package = "poqi-$env:RELEASE_TAG-${{ matrix.target }}"
+          Compress-Archive -Path "dist/$package" -DestinationPath "$package.zip"
+      - name: Start PostgreSQL for packaged connection smoke test
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          docker run --detach --rm --name poqi-release-smoke-postgres \
+            --env POSTGRES_PASSWORD=poqi --env POSTGRES_DB=poqi \
+            --publish 127.0.0.1:55432:5432 \
+            postgres:18-alpine@sha256:d3e1620b530c944afa6e887d22eb899824da68e19c52024bf98f5220c88a65b2
+          for attempt in {1..30}; do
+            if docker exec poqi-release-smoke-postgres pg_isready --username postgres --dbname poqi; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "PostgreSQL did not become ready" >&2
+          exit 1
+      - name: Smoke test packaged binary
+        shell: pwsh
+        env:
+          POQI_RELEASE_SMOKE_DATABASE_URL: ${{ runner.os == 'Linux' && 'postgresql://postgres:poqi@127.0.0.1:55432/poqi?sslmode=disable' || '' }}
+        run: >-
+          ./scripts/test-release-package.ps1
+          -Archive "poqi-$env:RELEASE_TAG-${{ matrix.target }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}"
+          -Target "${{ matrix.target }}"
+          -ReleaseTag "$env:RELEASE_TAG"
+      - name: Stop PostgreSQL smoke test container
+        if: always() && runner.os == 'Linux'
+        run: docker rm --force poqi-release-smoke-postgres
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: poqi-${{ matrix.target }}
+          path: |
+            poqi-*-${{ matrix.target }}.tar.gz
+            poqi-*-${{ matrix.target }}.zip
+          if-no-files-found: error
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [source, quality, credential-store, build]
+    env:
+      RELEASE_TAG: ${{ needs.source.outputs.tag }}
+      SOURCE_COMMIT: ${{ needs.source.outputs.commit }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.source.outputs.commit }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: release-assets
+          pattern: poqi-*
+          merge-multiple: true
+      - name: Prepare release assets
+        run: |
+          cp scripts/install.sh scripts/install.ps1 scripts/poqi-installer.cmd LICENSE release-assets/
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt
+      - name: Publish with release-specific notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --force origin --tags
+          if ! git rev-parse --verify --quiet "refs/tags/$RELEASE_TAG" >/dev/null; then
+            git tag "$RELEASE_TAG" "$SOURCE_COMMIT"
+            git push origin "refs/tags/$RELEASE_TAG"
+          fi
+          if [ "$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")" != "$SOURCE_COMMIT" ]; then
+            echo "Release tag moved after build; refusing to publish" >&2
+            exit 1
+          fi
+          if release_draft=$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            gh release upload "$RELEASE_TAG" release-assets/* --clobber
+            if [ "$release_draft" = "true" ]; then
+              gh release edit "$RELEASE_TAG" --draft=false --title "$RELEASE_TAG — $(date -u +%F)"
+            fi
+          else
+            previous_tag=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+            notes=(--notes "Initial public release. Release history starts here.")
+            if [ -n "$previous_tag" ]; then
+              notes=(--generate-notes --notes-start-tag "$previous_tag")
+            fi
+            gh release create "$RELEASE_TAG" release-assets/* --verify-tag \
+              --title "$RELEASE_TAG — $(date -u +%F)" "${notes[@]}"
+          fi

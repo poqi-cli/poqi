@@ -1,0 +1,19 @@
+[package]
+name = "poqi-observability"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+poqi-config = { path = "../config" }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.10"
+
+
+[lints]
+workspace = true

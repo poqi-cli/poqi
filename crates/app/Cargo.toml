@@ -1,0 +1,35 @@
+[package]
+name = "poqi-app"
+version = "1.0.0"
+edition = "2021"
+license-file.workspace = true
+autobins = false
+
+[[bin]]
+name = "poqi"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+crossterm = { workspace = true }
+ratatui = { workspace = true }
+poqi-config = { path = "../config" }
+poqi-catalog = { path = "../catalog" }
+poqi-db = { path = "../db" }
+poqi-engine = { path = "../engine" }
+poqi-observability = { path = "../observability" }
+poqi-store = { path = "../store" }
+poqi-ui = { path = "../ui" }
+poqi-testdata = { path = "../tools/testdata" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+arboard = "3.6"
+
+
+[dev-dependencies]
+poqi-store = { path = "../store", features = ["test-support"] }
+
+[lints]
+workspace = true
