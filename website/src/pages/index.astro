@@ -12,7 +12,7 @@ import nord from '../assets/poqi-nord.png';
 import semantic from '../assets/poqi-semantic.png';
 import settings from '../assets/poqi-settings.png';
 import synthwave from '../assets/poqi-synthwave.png';
-import { repo, version, releaseUrl, licenseUrl, downloadUrl, platforms } from '../data/release.js';
+import { repo, version, releaseUrl, licenseUrl, downloadUrl, platforms, windowsPortable } from '../data/release.js';
 
 const title = 'poqi — PostgreSQL terminal client and SQL editor';
 const description = 'Browse PostgreSQL schemas, write SQL and search rows by meaning in a keyboard-first terminal client built in Rust.';
@@ -276,6 +276,7 @@ const structuredData = {
               </div>
             </noscript>
             <div class="download-secondary">
+              <a href={downloadUrl(windowsPortable)}>Portable Windows ZIP ↗</a>
               <a href={`${guideUrl}#requirements`}>System requirements &amp; setup ↗</a>
               <a href={`${repo}/releases/download/${version}/SHA256SUMS.txt`}>Checksums ↗</a>
               <a href="https://github.com/poqi-cli/poqi#build-from-source">Build from source ↗</a>
