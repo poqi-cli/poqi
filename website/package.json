@@ -1,0 +1,26 @@
+{
+  "name": "poqi-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "test": "node --test tests/build.test.mjs",
+    "test:browser": "playwright test",
+    "audit": "node scripts/audit.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "chrome-launcher": "1.2.1",
+    "lighthouse": "13.4.1"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.3.2"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

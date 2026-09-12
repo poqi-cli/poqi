@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://poqi-cli.github.io/poqi/sitemap-index.xml

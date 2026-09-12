@@ -1,0 +1,19 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/poqi-logo.png';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header wrap">
+  <a href={base} class="brand" aria-label="poqi home">
+    <Image src={logo} width={119} height={119} alt="poqi" loading="eager" />
+  </a>
+  <nav aria-label="Main navigation">
+    <a href={`${base}#workspace`}>The workspace</a>
+    <a class="theme-link" href={`${base}#themes`}>Themes</a>
+    <a class="nav-download" href={`${base}#install`}>Download</a>
+    <a class="source" href="https://github.com/poqi-cli/poqi">GitHub <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>

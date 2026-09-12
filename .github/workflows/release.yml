@@ -4,6 +4,13 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+    paths-ignore:
+      - 'website/**'
+      - 'docs/**'
+      - '**/*.md'
+      - '.github/workflows/website.yml'
+      - '.github/workflows/release.yml'
+      - 'scripts/test-release-scope.ps1'
 
 permissions:
   contents: read
@@ -123,6 +130,15 @@ jobs:
         run: |
           $package = "poqi-$env:RELEASE_TAG-${{ matrix.target }}"
           Compress-Archive -Path "dist/$package" -DestinationPath "$package.zip"
+      - name: Build and verify Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $compiler = ./scripts/get-nsis.ps1 -DestinationDirectory "$env:RUNNER_TEMP/nsis"
+          $package = "dist/poqi-$env:RELEASE_TAG-${{ matrix.target }}"
+          ./scripts/test-windows-installer-path.ps1
+          ./scripts/test-windows-installer.ps1 -PackageDirectory $package -ReleaseTag $env:RELEASE_TAG -MakensisPath $compiler -WorkDirectory "$env:RUNNER_TEMP/poqi-installer-test"
+          ./scripts/build-windows-installer.ps1 -PackageDirectory $package -ReleaseTag $env:RELEASE_TAG -OutputDirectory . -MakensisPath $compiler
       - name: Start PostgreSQL for packaged connection smoke test
         if: runner.os == 'Linux'
         shell: bash
@@ -157,6 +173,7 @@ jobs:
           path: |
             poqi-*-${{ matrix.target }}.tar.gz
             poqi-*-${{ matrix.target }}.zip
+            poqi-*-${{ matrix.target }}-setup.exe
           if-no-files-found: error
 
   publish:

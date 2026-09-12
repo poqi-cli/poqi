@@ -47,7 +47,13 @@ must pass the release checks on both supported macOS architectures.
 
 Release packages and installers are published through [GitHub Releases](https://github.com/poqi-cli/poqi/releases) after their release checks pass. If no release is listed, build from source.
 
-Windows PowerShell:
+Windows: starting with v1.0.1, download `poqi-vX.Y.Z-windows-x86_64-setup.exe` from the release assets and open it. The installer needs no administrator rights, installs in `%USERPROFILE%\.poqi\bin`, adds `poqi` to your user PATH, and creates a Start menu shortcut that opens the app in a terminal. Reopen existing terminals after installation. Run a newer installer to update; uninstall through Windows Settings. Uninstall keeps your saved connections and application data. Portable ZIP archives remain available.
+
+The v1.0.0 release provides the ZIP archive and script installer; the native setup becomes available when v1.0.1 is published. The setup is currently unsigned, so Windows may show an unknown-publisher warning.
+
+For the first native setup, move any old ZIP/script program files out of the destination folder first. Setup refuses to overwrite an unregistered installation or unrelated files with the same names. Saved connection data does not need to be moved. Later native setup versions update the registered installation in place.
+
+Windows PowerShell alternative:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -c "irm https://github.com/poqi-cli/poqi/releases/latest/download/install.ps1 | iex"
@@ -80,3 +86,7 @@ poqi --doctor
 ```
 
 `--doctor` checks local configuration. Use `poqi --check-connection --profile local` to test an actual login without opening the TUI. Run `poqi --help` for connection examples.
+
+## Website development
+
+The configured product-site address is [poqi — PostgreSQL terminal client](https://poqi-cli.github.io/poqi/), with an [installation and connection guide](https://poqi-cli.github.io/poqi/getting-started/). The source lives in [website/](website/README.md), with a separate Astro build and GitHub Pages workflow.
