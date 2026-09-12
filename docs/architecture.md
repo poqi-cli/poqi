@@ -88,7 +88,7 @@ All arrows point upward (no circular deps); binaries only exist in `crates/app`.
 - `search/semantic` owns the Granite Embedding 97M Multilingual R2 ONNX loader, JSON tokenizer, normalized 384-dimensional CLS pooling, row text formatting and cosine scoring. CPU uses INT8; explicit DirectML uses FP32. `search/fuzzy` and `search/ranker` remain stubs.
 
 ### Store & Config
-- `poqi_store` uses rusqlite (with bundled SQLite) under the OS local data directory (`%LOCALAPPDATA%` on Windows, `$XDG_DATA_HOME` or `~/.local/share` on Linux), storing profile names plus encrypted URIs, with a native-keyring key plus the `settings` table that tracks UI timing, semantic knobs, and theme/keymap preferences.
+- `poqi_store` uses rusqlite (with bundled SQLite) under the OS local data directory (`%LOCALAPPDATA%` on Windows, `$XDG_DATA_HOME` or `~/.local/share` on Linux), storing profile names plus encrypted URIs, with a native-keyring key plus the `settings` table that tracks UI timing, semantic knobs, and theme/keymap preferences. Linux uses the asynchronous Secret Service provider over zbus `async-io`; each complete native call runs on a short-lived scoped OS thread outside the entered Tokio runtime, then the synchronous Store caller waits for its result.
 - `poqi_config` loads TOML, merges defaults, resolves keymap profiles, and exposes `db.defaults` (timeout + page size) plus experimental `search` knobs.
 - The application and all workspace crates use poqi names. Only current configuration and encrypted storage formats are supported; startup does not inspect or import previous application directories.
 

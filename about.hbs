@@ -1,0 +1,26 @@
+THIRD-PARTY LICENSES
+====================
+
+This file lists licenses for Rust packages included in this poqi binary.
+The native-code appendix that follows is maintained separately because Cargo
+metadata cannot describe source bundled and compiled by sys/build crates.
+
+RUST PACKAGES
+-------------
+{{#each crates}}
+{{package.name}} {{package.version}} | {{license}}
+Source: {{#if package.repository}}{{package.repository}}{{else}}https://crates.io/crates/{{package.name}}{{/if}}
+{{/each}}
+
+RUST LICENSE TEXTS
+------------------
+{{#each licenses}}
+===============================================================================
+{{name}}
+Used by:
+{{#each used_by}}
+- {{crate.name}} {{crate.version}}
+{{/each}}
+
+{{{text}}}
+{{/each}}

@@ -57,11 +57,29 @@ try {
 
     $packageRoot = Join-Path $smokeRoot $packageName
     $binaryName = if ($isWindowsPackage) { "poqi.exe" } else { "poqi" }
-    $expectedFiles = @("CHANGELOG.md", "LICENSE", "README.md", $binaryName) | Sort-Object
+    $expectedFiles = @("CHANGELOG.md", "LICENSE", "README.md", "THIRD-PARTY-LICENSES.txt", $binaryName) | Sort-Object
     $actualEntries = @(Get-ChildItem -LiteralPath $packageRoot -Force | Select-Object -ExpandProperty Name | Sort-Object)
     $unexpectedEntries = @(Compare-Object -ReferenceObject $expectedFiles -DifferenceObject $actualEntries)
     if ($unexpectedEntries.Count -ne 0) {
         throw "Package contents differ from the expected files: $($unexpectedEntries | Out-String)"
+    }
+
+    $noticesPath = Join-Path $packageRoot "THIRD-PARTY-LICENSES.txt"
+    $notices = [IO.File]::ReadAllText($noticesPath)
+    $requiredNoticeSections = @(
+        "RUST PACKAGES",
+        "RUST LICENSE TEXTS",
+        "NATIVE CODE APPENDIX",
+        "pg_query bundled C sources",
+        "zstd-sys bundled Zstandard",
+        "bzip2-sys bundled libbzip2",
+        "libsqlite3-sys bundled SQLite",
+        "ring native cryptography code"
+    )
+    foreach ($section in $requiredNoticeSections) {
+        if (-not $notices.Contains($section, [StringComparison]::Ordinal)) {
+            throw "Third-party notices are missing the '$section' section."
+        }
     }
 
     $binaryPath = Join-Path $packageRoot $binaryName

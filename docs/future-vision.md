@@ -54,6 +54,7 @@ Purpose: capture the aspirational roadmap so contributors know which big rocks a
 - Theme packs (dark/light/high contrast) with data-driven palettes and reduced-motion option.
 - Accessibility polish: keyboard parity, focus outlines, wide glyph handling, localization-friendly prompts.
 - Installers: Homebrew tap + notarized pkg (macOS), winget/MSI/zip (Windows), deb/rpm/tar.gz (Linux) via cargo-dist.
+- Publish an npm CLI wrapper that installs the verified platform release archive and links to the website download options.
 - Extend first-run onboarding to theme selection, telemetry opt-in, and semantic model download/license acceptance.
 
 ---
