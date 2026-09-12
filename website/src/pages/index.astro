@@ -9,7 +9,7 @@ import editor from '../assets/poqi-editor-dev.png';
 import light from '../assets/poqi-light.png';
 import midnight from '../assets/poqi-midnight.png';
 import nord from '../assets/poqi-nord.png';
-import semantic from '../assets/poqi-semantic.png';
+import DemoVideo from '../components/DemoVideo.astro';
 import settings from '../assets/poqi-settings.png';
 import synthwave from '../assets/poqi-synthwave.png';
 import { repo, version, releaseUrl, licenseUrl, downloadUrl, platforms, windowsPortable } from '../data/release.js';
@@ -187,20 +187,8 @@ const structuredData = {
           <div class="search-example"><span>TRY A DESCRIPTION LIKE</span><q>gear for a rainy hike</q></div>
           <p class="small">Off by default. Enable semantic search in Settings and save to download the model and runtime. Search covers fetched rows up to your table preview limit. Use SQL for numeric conditions.</p>
         </div>
-        <figure>
-          <a href={semantic.src} target="_blank" rel="noopener" data-lightbox>
-            <Image
-              src={semantic}
-              widths={[640, 960, 1320, 1920]}
-              sizes="(max-width: 800px) calc(100vw - 58px), (max-width: 1320px) 55vw, 760px"
-              format="webp"
-              quality={90}
-              alt="Real semantic search for gear for a rainy hike with Rain jacket and Trail backpack ranked first"
-              loading="lazy"
-            />
-          </a>
-          <figcaption><span>Real search result · synthetic demo data</span><a href={semantic.src} target="_blank" rel="noopener" data-lightbox>Full size ↗</a></figcaption>
-        </figure>
+        <DemoVideo clip="semantic-search" label="Semantic search demo"
+          description="A description ranks product rows by meaning." duration={6} />
       </div>
     </section>
 
@@ -226,6 +214,16 @@ const structuredData = {
           </a>
           <figcaption><span>Make the workspace yours.</span><a href={settings.src} target="_blank" rel="noopener" data-lightbox>Full size ↗</a></figcaption>
         </figure>
+      </div>
+      <div class="feature-demos">
+        <div><h3>From suggestion to query.</h3>
+          <DemoVideo clip="autocomplete" label="SQL autocomplete demo"
+            description="Complete a table name and run the query." duration={5} />
+        </div>
+        <div><h3>A value, edited in place.</h3>
+          <DemoVideo clip="editing" label="Row editing demo"
+            description="Change a product price, preview the SQL and save." duration={6} />
+        </div>
       </div>
     </section>
 
@@ -256,14 +254,14 @@ const structuredData = {
           <div id="download-panel" role="tabpanel" aria-labelledby="tab-windows" tabindex="0">
             <div class="download-row">
               <a id="download-link" class="button white" href={downloadUrl(platforms.windows)} aria-label="Download for Windows">{platforms.windows.buttonLabel} <span aria-hidden="true">↓</span></a>
-              <span id="download-meta">{version} · {platforms.windows.meta}</span>
+              <span class="platform-text"><span id="download-meta">{version} · {platforms.windows.meta}</span>{Object.values(platforms).map(platform => <span class="platform-sizing" aria-hidden="true">{version} · {platform.meta}</span>)}</span>
             </div>
-            <p id="platform-note" class="platform-note">{platforms.windows.note}</p>
+            <p class="platform-note platform-text"><span id="platform-note">{platforms.windows.note}</span>{Object.values(platforms).map(platform => <span class="platform-sizing" aria-hidden="true">{platform.note}</span>)}</p>
             <details class="installer-details">
               <summary>Install from your terminal</summary>
-              <p id="command-shell" class="command-shell">{platforms.windows.shell}</p>
+              <p class="command-shell platform-text"><span id="command-shell">{platforms.windows.shell}</span>{Object.values(platforms).map(platform => <span class="platform-sizing" aria-hidden="true">{platform.shell}</span>)}</p>
               <div class="command">
-                <code id="install-command">{platforms.windows.command}</code>
+                <code class="platform-text"><span id="install-command">{platforms.windows.command}</span>{[...new Set(Object.values(platforms).map(platform => platform.command))].map(command => <span class="platform-sizing" aria-hidden="true">{command}</span>)}</code>
                 <button id="copy-command" type="button" aria-label="Copy installation command">Copy</button>
               </div>
               <p id="copy-status" role="status" aria-live="polite"></p>

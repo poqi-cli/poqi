@@ -1,5 +1,32 @@
 import { test, expect } from '@playwright/test';
 
+test('silent demos wait for playback and work without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  const requested = [];
+  page.on('request', request => {
+    if (/\.(webm|mp4)(?:\?|$)/.test(request.url())) requested.push(request.url());
+  });
+  await page.goto('http://127.0.0.1:4321/poqi/');
+  const videos = page.locator('.demo-video video');
+  await expect(videos).toHaveCount(3);
+  for (const video of await videos.all()) await video.scrollIntoViewIfNeeded();
+  expect(requested).toEqual([]);
+  for (const video of await videos.all()) {
+    await expect(video).toHaveAttribute('preload', 'none');
+    expect(await video.evaluate(v => v.autoplay)).toBe(false);
+    const before = await video.boundingBox();
+    // Click Chromium's native play control with page scripts disabled.
+    await video.click({ position: { x: 29, y: before.height - 53 } });
+    await expect.poll(() => video.evaluate(v => v.currentTime)).toBeGreaterThan(0.2);
+    expect(await video.evaluate(v => v.getVideoPlaybackQuality().totalVideoFrames)).toBeGreaterThan(0);
+    expect((await video.boundingBox()).height).toBe(before.height);
+    await video.evaluate(v => v.pause());
+  }
+  expect(requested.some(url => url.includes('semantic-search.webm'))).toBe(true);
+  await context.close();
+});
+
 for (const [url, enabled] of [
   ['https://poqi-cli.github.io/poqi/', true],
   ['https://poqi-cli.github.io/poqi/getting-started/', true],
@@ -144,22 +171,32 @@ for (const [choice, file] of [['macos-arm','macos-arm64.tar.gz'], ['macos-intel'
   });
 }
 
-test('download button keeps its dimensions across platforms on mobile, tablet and desktop', async ({ page }) => {
+test('download panel stays stable across platforms with terminal instructions open and closed', async ({ page }) => {
   await page.emulateMedia({reducedMotion:'reduce'});
-  for (const width of [360, 768, 1440]) {
+  for (const width of [360, 390, 570, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({width, height:900});
     await page.goto('/poqi/');
-    let initial;
-    for (const platform of ['windows', 'macos-arm', 'macos-intel', 'linux']) {
-      await page.locator(`[data-platform="${platform}"]`).click();
-      const button = page.locator('#download-link');
-      const box = await button.boundingBox();
-      expect(box).not.toBeNull();
-      initial ||= box;
-      expect(box.width).toBe(initial.width);
-      expect(box.height).toBe(initial.height);
-      expect(await button.evaluate(el => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight)).toBe(true);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    for (const open of [false, true]) {
+      await page.locator('.installer-details').evaluate((el, value) => { el.open = value; }, open);
+      let initial;
+      let initialLayout;
+      for (const platform of ['windows', 'macos-arm', 'macos-intel', 'linux']) {
+        await page.locator(`[data-platform="${platform}"]`).click();
+        const button = page.locator('#download-link');
+        const box = await button.boundingBox();
+        expect(box).not.toBeNull();
+        initial ||= box;
+        expect(box.width).toBe(initial.width);
+        expect(box.height).toBe(initial.height);
+        const layout = await page.evaluate(() => ['#download-panel', '.installer-details', '.download-secondary', '.first-connection'].map(selector => {
+          const rect = document.querySelector(selector).getBoundingClientRect();
+          return [rect.width, rect.height, rect.top + scrollY];
+        }));
+        initialLayout ||= layout;
+        expect(layout).toEqual(initialLayout);
+        expect(await button.evaluate(el => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight)).toBe(true);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      }
     }
     await page.getByRole('link', {name:'System requirements & setup'}).click();
     await expect(page).toHaveURL(/getting-started\/#requirements$/);
