@@ -49,7 +49,7 @@ Release packages and installers are published through [GitHub Releases](https://
 
 Windows: starting with v1.0.1, download `poqi-vX.Y.Z-windows-x86_64-setup.exe` from the release assets and open it. The installer needs no administrator rights, installs in `%USERPROFILE%\.poqi\bin`, adds `poqi` to your user PATH, and creates a Start menu shortcut that opens the app in a terminal. Reopen existing terminals after installation. Run a newer installer to update; uninstall through Windows Settings. Uninstall keeps your saved connections and application data. Portable ZIP archives remain available.
 
-The v1.0.1 release includes the native setup, portable ZIP archive, and script installer. The setup is unsigned, so Windows may show an unknown-publisher warning.
+The v1.0.2 release includes the native setup, portable ZIP archive, and script installer. The setup is unsigned, so Windows may show an unknown-publisher warning.
 
 For the first native setup, move any old ZIP/script program files out of the destination folder first. Setup refuses to overwrite an unregistered installation or unrelated files with the same names. Saved connection data does not need to be moved. Later native setup versions update the registered installation in place.
 
