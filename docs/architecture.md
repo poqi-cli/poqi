@@ -31,6 +31,7 @@ poqi/
 │  ├─ config/         # TOML loader + keymap parsing
 │  ├─ observability/  # tracing subscriber setup
 │  └─ tools/          # testdata and test-support helpers
+├─ website/          # static Astro product site; independent npm build
 ├─ docs/
 └─ CHANGELOG.md
 ```
@@ -123,3 +124,11 @@ All arrows point upward (no circular deps); binaries only exist in `crates/app`.
 - [`docs/current-status.md`](current-status.md) — definitive list of implemented behaviour, commands, and limitations.
 - [`docs/future-vision.md`](future-vision.md) — planned capabilities (semantic search, CRUD forms, multi-tab editor, packaging).
 - [`docs/testing-guide.md`](testing-guide.md) — how to run the optional Docker-backed suites.
+
+## Product website
+
+The Astro project in website/ generates static HTML, optimized images and a sitemap for GitHub Pages at https://poqi-cli.github.io/poqi/. It has no server runtime or dependency on the Rust build. Its homepage, getting-started guide and static llms.txt endpoint share release data; indexable pages link to the AI index in their document metadata. Its separate website workflow validates pull requests and publishes changes on main; application release gates remain in the release workflow, with website/documentation and trigger-only changes excluded. See [website setup](../website/README.md).
+
+## Windows distribution
+
+The v1.0.1 release pipeline wraps the same staged executable and license notices used by the ZIP in a per-user NSIS setup. The pinned compiler download is SHA-256 verified. Setup owns its program files, Start menu shortcut and uninstall registration; its PowerShell helper preserves the raw user PATH and records ownership of any added entry. Saved connections and application data are outside the uninstall scope. Isolated registry keys and shortcuts let the installer lifecycle run in CI without altering the test runner's real PATH or installed applications. Code signing and package feeds remain future work.

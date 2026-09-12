@@ -1,0 +1,22 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/poqi-logo.png';
+import { licenseUrl } from '../data/release.js';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<footer class="wrap">
+  <a class="brand" href={base} aria-label="poqi home">
+    <Image src={logo} width={119} height={119} alt="poqi" loading="lazy" />
+  </a>
+  <p>
+    PostgreSQL Query Interface<br />
+    Source available · <a href={licenseUrl}>poqi No-Sale Source License 1.0</a>
+  </p>
+  <div>
+    <a href={`${base}getting-started/`}>Getting started</a>
+    <a href="https://github.com/poqi-cli/poqi/blob/main/docs/current-status.md">Project status <span aria-hidden="true">↗</span></a>
+    <a href="https://github.com/poqi-cli/poqi/releases">Releases <span aria-hidden="true">↗</span></a>
+  </div>
+</footer>

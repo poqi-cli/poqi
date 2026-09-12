@@ -1,0 +1,304 @@
+---
+import { Image } from 'astro:assets';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import cyberpunk from '../assets/poqi-cyberpunk.png';
+import dark from '../assets/poqi-dark.png';
+import editor from '../assets/poqi-editor-dev.png';
+import light from '../assets/poqi-light.png';
+import midnight from '../assets/poqi-midnight.png';
+import nord from '../assets/poqi-nord.png';
+import semantic from '../assets/poqi-semantic.png';
+import settings from '../assets/poqi-settings.png';
+import synthwave from '../assets/poqi-synthwave.png';
+import { repo, version, releaseUrl, licenseUrl, downloadUrl, platforms } from '../data/release.js';
+
+const title = 'poqi — PostgreSQL terminal client and SQL editor';
+const description = 'Browse PostgreSQL schemas, write SQL and search rows by meaning in a keyboard-first terminal client built in Rust.';
+const baseUrl = new URL(import.meta.env.BASE_URL, Astro.site).href;
+const guideUrl = `${import.meta.env.BASE_URL}getting-started/`;
+const imageSizes = '(max-width: 570px) calc(100vw - 48px), (max-width: 1100px) calc(100vw - 92px), 1292px';
+const themes = [
+  { id: 'dark', label: 'Dark', image: dark },
+  { id: 'light', label: 'Light', image: light },
+  { id: 'cyberpunk', label: 'Cyberpunk', image: cyberpunk },
+  { id: 'midnight', label: 'Midnight', image: midnight },
+  { id: 'nord', label: 'Nord', image: nord },
+  { id: 'synthwave', label: 'Synthwave', image: synthwave },
+];
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'poqi',
+  description,
+  url: baseUrl,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Windows, macOS, Linux',
+  softwareVersion: version.slice(1),
+  downloadUrl: Object.values(platforms).map(downloadUrl),
+  releaseNotes: releaseUrl,
+  sameAs: repo,
+  license: licenseUrl,
+  image: new URL(dark.src, Astro.site).href,
+  screenshot: new URL(dark.src, Astro.site).href,
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: 0, url: `${baseUrl}#install` },
+  softwareHelp: { '@type': 'WebPage', url: new URL(guideUrl, Astro.site).href },
+  featureList: [
+    'PostgreSQL schema browsing',
+    'Multiline SQL editing with catalog-backed suggestions',
+    'Eligible single-table row updates and deletes',
+    'Optional local semantic ranking of fetched rows',
+  ],
+};
+---
+
+<BaseLayout
+  {title}
+  {description}
+  shareImage={dark.src}
+  shareImageAlt="poqi PostgreSQL workspace in the Dark theme"
+  shareImageWidth={dark.width}
+  shareImageHeight={dark.height}
+  {structuredData}
+>
+  <SiteHeader />
+  <main id="main">
+    <section class="hero wrap">
+      <div class="eyebrow">
+        <span class="dot"></span>
+        POSTGRESQL QUERY INTERFACE
+        <a
+          class="release-badge"
+          href={releaseUrl}
+          aria-label={`Read the poqi ${version} release notes`}
+        >{version} <span aria-hidden="true">↗</span></a>
+      </div>
+      <h1>Your database.<br /> At your<br /> <span class="last-word">fingertips<span class="period">.</span></span></h1>
+      <div class="hero-detail">
+        <a
+          class="detail-image"
+          href={editor.src}
+          target="_blank"
+          rel="noopener"
+          aria-label="Open full-size SQL editor detail"
+          data-lightbox
+        >
+          <Image
+            src={editor}
+            widths={[285, 570]}
+            sizes="(max-width: 570px) calc(50vw - 25px), 285px"
+            format="webp"
+            quality={90}
+            alt="Real poqi editor with a read-only service metrics example query"
+            loading="eager"
+          />
+        </a>
+        <div class="detail-label"><span>SQL EDITOR / DEMO QUERY</span><span aria-hidden="true">↗</span></div>
+        <p>Browse tables. Write SQL.<br /> Keep your hands on the keys.</p>
+        <a class="button blue" href="#install">Download poqi <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="hero-bottom">
+        <p>A PostgreSQL terminal interface, built in Rust.<br /> Browse schemas, write SQL and inspect results in one workspace.</p>
+        <a href="#workspace">Take a look <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+
+    <section class="workspace" id="workspace">
+      <div class="wrap">
+        <div class="section-top">
+          <div><div class="eyebrow">01 / THE WORKSPACE</div><h2>Less reaching.<br /> More querying.</h2></div>
+          <p>Choose a table and its rows appear.<br /> Move into the editor, run your SQL,<br /> and inspect the results in one place.</p>
+        </div>
+        <div class="product-stage">
+          <div class="stage-top">
+            <span>poqi / PostgreSQL Query Interface</span>
+            <a id="main-full" href={dark.src} target="_blank" rel="noopener" data-lightbox>Full-size view ↗</a>
+          </div>
+          <a
+            id="main-image-link"
+            href={dark.src}
+            target="_blank"
+            rel="noopener"
+            aria-label="Open full-size poqi workspace"
+            data-lightbox
+          >
+            <Image
+              id="theme-image"
+              src={dark}
+              widths={[640, 960, 1320, 1920, 2612]}
+              sizes={imageSizes}
+              format="webp"
+              quality={90}
+              alt="Real poqi PostgreSQL workspace in the Dark theme"
+              loading="lazy"
+            />
+          </a>
+        </div>
+        <div class="theme-row" id="themes">
+          <p>Same workspace.<br /> <strong>Your kind of contrast.</strong></p>
+          <div class="themes" role="group" aria-label="Preview a poqi theme">
+            {themes.map((theme, index) => (
+              <button data-theme={theme.id} aria-pressed={index === 0 ? 'true' : 'false'}>
+                <i class:list={['swatch', theme.id]}></i>{theme.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div class="caption"><span>Real poqi, local demo data.</span><span>Set your theme in Settings, then save.</span></div>
+        {themes.map((theme) => (
+          <template data-theme-image={theme.id} data-original={theme.image.src}>
+            <Image
+              src={theme.image}
+              widths={[640, 960, 1320, 1920, 2612]}
+              sizes={imageSizes}
+              format="webp"
+              quality={90}
+              alt={`Real poqi workspace in the ${theme.label} theme`}
+              loading="lazy"
+            />
+          </template>
+        ))}
+      </div>
+    </section>
+
+    <section class="keyboard wrap">
+      <div class="keyboard-intro">
+        <div class="eyebrow">02 / FIND YOUR FLOW</div>
+        <h2>A few keys.<br /> A lot less friction.</h2>
+        <p>Navigate with WASD or arrow keys. Focus the panel you need. Back out with Esc. While editing, letters stay letters.</p>
+      </div>
+      <div class="key-guide" aria-label="poqi keyboard guide">
+        <div class="key-line"><span class="key-name">Move around</span><div class="keycaps"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span class="or">or</span><kbd>↑↓←→</kbd></div></div>
+        <div class="key-line"><span class="key-name">Focus / back</span><div class="keycaps"><kbd>F</kbd><span class="or">/</span><kbd>Esc</kbd></div></div>
+        <div class="key-line"><span class="key-name">Bigger jumps</span><div class="keycaps"><kbd>Shift</kbd><span class="or">+</span><span>navigation</span></div></div>
+        <div class="key-line"><span class="key-name">Run SQL</span><div class="keycaps"><kbd>Alt</kbd><span class="or">+</span><kbd>Enter</kbd></div></div>
+        <p class="guide-note">Also run SQL with Shift + Enter or F5.</p>
+      </div>
+    </section>
+
+    <section class="semantic">
+      <div class="wrap semantic-grid">
+        <div class="semantic-copy">
+          <div class="eyebrow">03 / SEARCH BY MEANING</div>
+          <h2>Know the idea.<br /> Find the row.</h2>
+          <p>Describe what you’re looking for. Local semantic search ranks fetched rows from your selected table by meaning.</p>
+          <div class="search-example"><span>TRY A DESCRIPTION LIKE</span><q>gear for a rainy hike</q></div>
+          <p class="small">Off by default. Enable semantic search in Settings and save to download the model and runtime. Search covers fetched rows up to your table preview limit. Use SQL for numeric conditions.</p>
+        </div>
+        <figure>
+          <a href={semantic.src} target="_blank" rel="noopener" data-lightbox>
+            <Image
+              src={semantic}
+              widths={[640, 960, 1320, 1920]}
+              sizes="(max-width: 800px) calc(100vw - 58px), (max-width: 1320px) 55vw, 760px"
+              format="webp"
+              quality={90}
+              alt="Real semantic search for gear for a rainy hike with Rain jacket and Trail backpack ranked first"
+              loading="lazy"
+            />
+          </a>
+          <figcaption><span>Real search result · synthetic demo data</span><a href={semantic.src} target="_blank" rel="noopener" data-lightbox>Full size ↗</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="details wrap">
+      <div class="detail-heading"><div class="eyebrow">04 / ROOM TO WORK</div><h2>Good defaults.<br /> Your adjustments.</h2></div>
+      <div class="details-grid">
+        <div class="feature-list">
+          <article><span class="feature-number">01</span><div><h3>Write SQL with catalog suggestions.</h3><p>Multiline editing, clipboard and selection, with catalog-backed suggestions for keywords, tables, columns and clauses.</p></div></article>
+          <article><span class="feature-number">02</span><div><h3>Inspect and edit your data.</h3><p>Check column types, keys and nullability. Update or delete rows in eligible single-table results, with SQL previews and confirmation.</p></div></article>
+          <article><span class="feature-number">03</span><div><h3>Set navigation and search defaults.</h3><p>Adjust scroll steps, mouse scrolling and preview limits. Set semantic result count, similarity threshold and runtime. Switching an active semantic backend requires a restart.</p></div></article>
+        </div>
+        <figure class="settings">
+          <a href={settings.src} target="_blank" rel="noopener" data-lightbox>
+            <Image
+              src={settings}
+              widths={[560, 840, 1200]}
+              sizes="(max-width: 570px) calc(100vw - 48px), (max-width: 1320px) 48vw, 625px"
+              format="webp"
+              quality={90}
+              alt="poqi Settings showing theme and workspace configuration"
+              loading="lazy"
+            />
+          </a>
+          <figcaption><span>Make the workspace yours.</span><a href={settings.src} target="_blank" rel="noopener" data-lightbox>Full size ↗</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="install" id="install" aria-labelledby="install-title">
+      <div class="wrap install-grid">
+        <div class="download-intro">
+          <div class="eyebrow">GET POQI / {version}</div>
+          <h2 id="install-title">Your next query<br /> starts here<span>.</span></h2>
+          <p>Free download for your platform.<br /> Ready to run in your terminal.</p>
+          <a class="release-link" href={releaseUrl}>Release notes <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="install-right">
+          <div id="mac-choice" class="mac-choice" hidden>
+            <h3>Choose your Mac’s processor</h3>
+            <p>Check About This Mac, then choose Apple Silicon or Intel.</p>
+            <div>
+              <button type="button" class="button white" data-mac-choice="macos-arm">Apple Silicon</button>
+              <button type="button" class="button white" data-mac-choice="macos-intel">Intel</button>
+            </div>
+            <button id="show-all-platforms" type="button">Show all platforms</button>
+          </div>
+          <div class="platform-tabs" role="tablist" aria-label="Download platform">
+            <button id="tab-windows" type="button" role="tab" aria-selected="true" aria-controls="download-panel" data-platform="windows">Windows <span>x64</span></button>
+            <button id="tab-macos-arm" type="button" role="tab" aria-selected="false" aria-controls="download-panel" tabindex="-1" data-platform="macos-arm">macOS <span>Apple Silicon</span></button>
+            <button id="tab-macos-intel" type="button" role="tab" aria-selected="false" aria-controls="download-panel" tabindex="-1" data-platform="macos-intel">macOS <span>Intel</span></button>
+            <button id="tab-linux" type="button" role="tab" aria-selected="false" aria-controls="download-panel" tabindex="-1" data-platform="linux">Linux <span>x64</span></button>
+          </div>
+          <div id="download-panel" role="tabpanel" aria-labelledby="tab-windows" tabindex="0">
+            <div class="download-row">
+              <a id="download-link" class="button white" href={downloadUrl(platforms.windows)} aria-label="Download for Windows">{platforms.windows.buttonLabel} <span aria-hidden="true">↓</span></a>
+              <span id="download-meta">{version} · {platforms.windows.meta}</span>
+            </div>
+            <p id="platform-note" class="platform-note">{platforms.windows.note}</p>
+            <details class="installer-details">
+              <summary>Install from your terminal</summary>
+              <p id="command-shell" class="command-shell">{platforms.windows.shell}</p>
+              <div class="command">
+                <code id="install-command">{platforms.windows.command}</code>
+                <button id="copy-command" type="button" aria-label="Copy installation command">Copy</button>
+              </div>
+              <p id="copy-status" role="status" aria-live="polite"></p>
+              <p class="then">Then run <code>poqi</code>. If the command is not found, restart your terminal.</p>
+            </details>
+            <noscript>
+              <div class="no-script-downloads">
+                <p>Direct downloads:</p>
+                {Object.values(platforms).map(platform => <a href={downloadUrl(platform)}>{platform.title}</a>)}
+              </div>
+            </noscript>
+            <div class="download-secondary">
+              <a href={`${guideUrl}#requirements`}>System requirements &amp; setup ↗</a>
+              <a href={`${repo}/releases/download/${version}/SHA256SUMS.txt`}>Checksums ↗</a>
+              <a href="https://github.com/poqi-cli/poqi#build-from-source">Build from source ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wrap first-connection">
+        <span class="step-marker">01 / CONNECT</span>
+        <p>Launch <code>poqi</code>, create a connection, and paste a PostgreSQL URL or enter your connection details. Reopen saved profiles from the start menu.</p>
+        <a href={guideUrl}>Installation &amp; connection guide →</a>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+
+  <dialog id="image-viewer" aria-label="Application screenshot">
+    <div class="viewer-toolbar">
+      <p id="viewer-title">poqi screenshot</p>
+      <button id="viewer-close" type="button" aria-label="Close screenshot">Close <span aria-hidden="true">×</span></button>
+    </div>
+    <img id="viewer-image" alt="" />
+    <a id="viewer-original" target="_blank" rel="noopener">Open original image ↗</a>
+  </dialog>
+  <script src="../scripts/main.js"></script>
+</BaseLayout>

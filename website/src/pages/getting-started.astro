@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import dark from '../assets/poqi-dark.png';
+import { repo, version, platforms, downloadUrl, releaseUrl, licenseUrl } from '../data/release.js';
+
+const base = import.meta.env.BASE_URL;
+const title = 'Install poqi and connect to PostgreSQL — getting started';
+const description = 'Install poqi on Windows, macOS or Linux, save a PostgreSQL connection, run your first SQL query and troubleshoot connection errors.';
+const home = new URL(base, Astro.site).href;
+const pageUrl = new URL(`${base}getting-started/`, Astro.site).href;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description,
+  url: pageUrl,
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'poqi', item: home },
+      { '@type': 'ListItem', position: 2, name: 'Getting started', item: pageUrl },
+    ],
+  },
+};
+---
+
+<BaseLayout {title} {description} {structuredData} shareImage={dark.src} shareImageWidth={dark.width} shareImageHeight={dark.height}>
+  <SiteHeader />
+  <main id="main" class="guide wrap">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href={base}>poqi</a><span aria-hidden="true">/</span><span aria-current="page">Getting started</span></nav>
+    <div class="eyebrow">FROM DOWNLOAD TO YOUR FIRST QUERY</div>
+    <h1>Get started<br /> with <span>poqi.</span></h1>
+    <p class="intro">Install the PostgreSQL terminal client, connect to your database and run SQL in one workspace. These instructions cover poqi {version}.</p>
+    <nav class="contents" aria-label="On this page">
+      <a href="#install-poqi">Install</a><a href="#connect">Connect</a><a href="#first-query">Run SQL</a><a href="#troubleshooting">Troubleshoot</a>
+    </nav>
+
+    <section id="install-poqi" aria-labelledby="install-heading">
+      <h2 id="install-heading">1. Install poqi</h2>
+      <p>You need a terminal and access to a running PostgreSQL server. Keep the terminal at least 60 columns wide and 24 rows tall. The downloads include the ready-to-run application. Docker is only needed for the optional demo database generator.</p>
+      <p>Choose the archive for your operating system and processor. Downloads are free under the <a href={licenseUrl}>poqi No-Sale Source License 1.0</a>.</p>
+      <h3 id="requirements">System requirements</h3>
+      <p>Windows downloads are for 64-bit Intel and AMD PCs. On macOS, choose Apple Silicon for an M-series chip or Intel for an Intel processor. You can check the processor in About This Mac.</p>
+      <p><strong>Linux:</strong> the current download is built and tested on Ubuntu 24.04 for 64-bit Intel and AMD processors. It requires glibc 2.39 or newer, a system library included in Ubuntu 24.04. Other Linux distributions have not been tested.</p>
+      <p>Saving and reopening connections on Linux also needs an available, unlocked desktop password keyring that supports the Secret Service standard, such as GNOME Keyring. A minimal desktop or server installation may need this set up first.</p>
+      <div class="downloads">
+        {Object.values(platforms).map(platform => (
+          <article>
+            <h3><a href={downloadUrl(platform)}>Download for {platform.title}</a></h3>
+            <p class="archive-meta">{version} · {platform.meta}</p>
+            <p>{platform.note}</p>
+          </article>
+        ))}
+      </div>
+      <p>On Windows, extract the ZIP, open a terminal in the extracted folder, and run <code>.\poqi.exe</code>. On macOS or Linux, extract the archive, open a terminal in that folder, and run <code>./poqi</code>. Download the matching <a href={`${repo}/releases/download/${version}/SHA256SUMS.txt`}>SHA-256 checksums</a> if you want to verify your archive. See the <a href={releaseUrl}>release notes and files</a> for the complete distribution.</p>
+      <p><strong>macOS first launch:</strong> the current release is not Developer ID signed or notarized by Apple, so Gatekeeper may block a browser-downloaded copy. If you trust the official source, verify the archive against the linked checksums first. After attempting to launch poqi, you can allow that specific app in System Settings → Privacy &amp; Security → Open Anyway. Follow <a href="https://support.apple.com/en-gb/102445">Apple’s guidance for opening downloaded software</a>; managed Macs may restrict this choice.</p>
+      <details>
+        <summary>Install poqi so the command works from any folder</summary>
+        <p>The ZIP is a portable application, not a setup wizard. Extracting it or running <code>poqi.exe</code> does not install a global command. The official installer downloads the latest release, verifies its checksum, and adds its folder to your user PATH so your terminal can find <code>poqi</code>. These commands download and run the project’s installer script.</p>
+        <p>On Windows, the default location is <code>%USERPROFILE%\.poqi\bin\poqi.exe</code>. After installation, close and reopen your terminal application, then run <code>poqi</code> from any folder.</p>
+        <h3>Windows PowerShell</h3>
+        <pre><code>{platforms.windows.command}</code></pre>
+        <h3>macOS or Linux shell</h3>
+        <pre><code>{platforms.linux.command}</code></pre>
+        <p>Restart your terminal if <code>poqi</code> is not found after installation. You can inspect the <a href={`${repo}/releases/latest/download/install.ps1`}>PowerShell installer</a> or <a href={`${repo}/releases/latest/download/install.sh`}>shell installer</a> before running it.</p>
+      </details>
+    </section>
+
+    <section id="connect" aria-labelledby="connect-heading">
+      <h2 id="connect-heading">2. Connect to PostgreSQL</h2>
+      <p>Start <code>poqi</code>. The profile menu opens first. Create a connection and either paste your PostgreSQL URL or enter the host, port, user, password and database separately. Use the URL form for advanced TLS options. The separate fields handle URI encoding for you.</p>
+      <p>Move between fields with Tab or Shift+Tab and press Enter to connect. poqi saves the profile only after connection and catalog loading succeed. A failed attempt keeps your entries and shows an error so you can correct the details and retry.</p>
+      <p>poqi encrypts saved connection details using your operating system’s password storage: Windows Credential Manager, macOS Keychain or a Linux password keyring. On Linux, the keyring must be available and unlocked; see the <a href="#requirements">system requirements</a>. Passwords are visible while editing the connection form, so avoid sharing a screenshot of real credentials.</p>
+      <p>TLS is required by default, with certificate-chain and hostname verification. For a hosted database, use the connection information and CA certificate supplied by your provider. Keep certificate errors visible and correct the hostname or CA configuration. The <a href={`${repo}/blob/main/docs/connections.md#tls`}>TLS reference</a> describes supported URL options.</p>
+    </section>
+
+    <section id="first-query" aria-labelledby="query-heading">
+      <h2 id="query-heading">3. Browse tables and run SQL</h2>
+      <p>Expand a schema and choose a table to preview its rows. Use WASD or arrow keys to navigate, F to focus a panel, and Esc to go back. In the SQL editor, letters enter text.</p>
+      <p>Enter this read-only query in the editor:</p>
+      <pre><code>SELECT current_database(), current_user;</code></pre>
+      <p>Run it with Alt+Enter, Shift+Enter or F5. The results show the database and PostgreSQL role for your connection. Your account’s database permissions still determine which tables and actions are available.</p>
+      <p>Optional semantic search ranks the fetched rows of a selected table by meaning. It starts off disabled. Enabling it in Settings and saving downloads the model and runtime. Use SQL for exact numeric conditions or queries beyond the table preview limit.</p>
+    </section>
+
+    <section id="troubleshooting" aria-labelledby="troubleshoot-heading">
+      <h2 id="troubleshoot-heading">4. If a connection fails</h2>
+      <dl>
+        <dt>Connection refused or timed out</dt><dd>Check the host, port, PostgreSQL service, VPN and firewall. For a slow server or large catalog, <code>poqi --connect-timeout 30</code> allows 30 seconds for setup.</dd>
+        <dt>Authentication or database error</dt><dd>Check your username, password, database name and the server’s access rules. Correct the retained form fields and retry.</dd>
+        <dt>Certificate error</dt><dd>Check that the URL uses the certificate’s hostname and that the correct CA is trusted. Custom CA and client-certificate options belong in the URL form.</dd>
+        <dt>Secure saving failed</dt><dd>Unlock the operating system credential store and check local storage permissions, then retry. poqi does not fall back to plaintext profile storage.</dd>
+      </dl>
+      <p>To test a saved connection without opening the interface, replace <code>local</code> with your profile name:</p>
+      <pre><code>poqi --check-connection --profile local</code></pre>
+      <p>This checks login and runs <code>SELECT 1</code>; it exits with code 0 on success and a nonzero code on failure. <code>poqi --doctor</code> checks local configuration only and does not test a database login.</p>
+      <p>For more detail, read the <a href={`${repo}/blob/main/docs/connections.md`}>connection reference</a> and <a href={`${repo}/blob/main/docs/current-status.md`}>implemented features and limitations</a>. Report reproducible problems in the <a href={`${repo}/issues`}>poqi issue tracker</a>, with credentials and private connection details removed.</p>
+    </section>
+    <a class="button blue" href={`${base}#workspace`}>Explore the workspace <span aria-hidden="true">→</span></a>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .guide{max-width:960px;padding-block:35px 80px}.breadcrumbs{display:flex;gap:12px;align-items:center;font-size:14px;margin-bottom:50px;color:var(--muted)}.breadcrumbs a{color:var(--blue)}.eyebrow{color:var(--blue)}h1{font-size:clamp(52px,7vw,92px);line-height:1;letter-spacing:-.065em;max-width:none;margin:24px 0}h1 span{color:var(--blue)}.intro{font-size:22px;line-height:1.55;max-width:700px;color:var(--muted)}.contents{display:flex;flex-wrap:wrap;gap:14px 28px;border-block:1px solid var(--line);padding:22px 0;margin-top:35px}.contents a{font-weight:700;color:var(--blue)}section{padding:45px 0 15px;border-bottom:1px solid var(--line)}section:last-of-type{margin-bottom:35px}h2{font-size:clamp(32px,4vw,44px);letter-spacing:-.04em;line-height:1.12;margin:0 0 24px}p,dd{font-size:17px;line-height:1.75;max-width:78ch;color:var(--muted)}section a{text-decoration:underline;text-underline-offset:3px;color:var(--blue)}h3{font-size:20px;letter-spacing:-.02em;line-height:1.4;margin:0 0 10px}.downloads{display:grid;grid-template-columns:1fr 1fr;gap:0 30px;margin:26px 0}.downloads article{padding:22px 0;border-top:1px solid var(--line)}.downloads p{font-size:15px;line-height:1.6}.archive-meta{font-size:13px!important;margin:0;color:var(--muted)}code{font-size:.9em;color:var(--ink);overflow-wrap:anywhere}pre{background:#f0f2f7;padding:22px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;max-width:100%}pre code{font-size:14px}details{border-top:1px solid var(--line);padding:22px 0;margin-top:24px}summary{font-weight:700;cursor:pointer;line-height:1.5}summary:focus-visible{outline:3px solid var(--blue);outline-offset:5px}details h3{margin-top:24px}dt{font-size:18px;font-weight:700;margin-top:24px}dd{margin:6px 0 20px}.guide>.button{margin-top:4px}
+  @media(max-width:570px){.guide{padding-top:25px}.breadcrumbs{margin-bottom:35px}h1{font-size:58px}.intro{font-size:19px}.downloads{grid-template-columns:1fr;gap:0}.contents{gap:14px 20px}section{padding-top:36px}pre{padding:16px}.guide>.button{font-size:14px;gap:15px}}
+</style>

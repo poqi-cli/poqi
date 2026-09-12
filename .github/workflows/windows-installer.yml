@@ -1,0 +1,37 @@
+name: Windows installer
+
+on:
+  pull_request:
+    paths:
+      - 'packaging/windows/**'
+      - 'scripts/*windows-installer*.ps1'
+      - 'scripts/get-nsis.ps1'
+      - '.github/workflows/windows-installer.yml'
+      - '.github/workflows/release.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
+      - name: Build application
+        run: cargo build --locked --bin poqi
+      - name: Test installer lifecycle
+        shell: pwsh
+        run: |
+          $compiler = ./scripts/get-nsis.ps1 -DestinationDirectory "$env:RUNNER_TEMP/nsis"
+          $version = (Select-String -Path crates/app/Cargo.toml -Pattern '^version = "([^"]+)"$').Matches[0].Groups[1].Value
+          $package = "$env:RUNNER_TEMP/poqi-installer-package"
+          New-Item -ItemType Directory -Path $package | Out-Null
+          Copy-Item target/debug/poqi.exe, README.md, CHANGELOG.md, LICENSE -Destination $package
+          # This isolated, unpublished test package checks packaging mechanics.
+          # Release packaging generates and validates the actual dependency notices.
+          Set-Content -LiteralPath "$package/THIRD-PARTY-LICENSES.txt" -Value 'Installer integration test fixture; not for distribution.'
+          ./scripts/test-windows-installer-path.ps1
+          ./scripts/test-windows-installer.ps1 -PackageDirectory $package -ReleaseTag "v$version" -MakensisPath $compiler -WorkDirectory "$env:RUNNER_TEMP/poqi-installer-test"

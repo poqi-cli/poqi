@@ -53,7 +53,7 @@ Purpose: capture the aspirational roadmap so contributors know which big rocks a
 ### 5. Packaging & First-Run Experience
 - Theme packs (dark/light/high contrast) with data-driven palettes and reduced-motion option.
 - Accessibility polish: keyboard parity, focus outlines, wide glyph handling, localization-friendly prompts.
-- Installers: Homebrew tap + notarized pkg (macOS), winget/MSI/zip (Windows), deb/rpm/tar.gz (Linux) via cargo-dist.
+- Windows v1.0.1 uses a per-user NSIS EXE installer alongside the portable ZIP, without requiring a package manager or administrator rights. Signing and package feeds remain future work: Homebrew tap + notarized pkg (macOS), winget/MSI (Windows), deb/rpm (Linux).
 - Publish an npm CLI wrapper that installs the verified platform release archive and links to the website download options.
 - Extend first-run onboarding to theme selection, telemetry opt-in, and semantic model download/license acceptance.
 

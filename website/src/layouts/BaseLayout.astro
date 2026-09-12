@@ -1,0 +1,70 @@
+---
+import { getImage } from 'astro:assets';
+import logo from '../assets/poqi-logo.png';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  shareImage?: string;
+  shareImageAlt?: string;
+  shareImageWidth?: number;
+  shareImageHeight?: number;
+  noindex?: boolean;
+  structuredData?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  shareImage,
+  shareImageAlt = 'poqi PostgreSQL terminal workspace',
+  shareImageWidth,
+  shareImageHeight,
+  noindex = false,
+  structuredData,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = shareImage ? new URL(shareImage, Astro.site) : undefined;
+const favicon = await getImage({ src: logo, width: 96, height: 96, format: 'png', fit: 'cover' });
+const sitemapUrl = new URL(`${import.meta.env.BASE_URL}sitemap-index.xml`, Astro.site);
+const searchConsoleVerification = import.meta.env.GOOGLE_SITE_VERIFICATION?.trim();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {searchConsoleVerification && <meta name="google-site-verification" content={searchConsoleVerification} />}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/png" sizes="96x96" href={favicon.src} />
+    <link rel="sitemap" type="application/xml" href={sitemapUrl} />
+    {!noindex && <link rel="describedby" type="text/plain" href={`${import.meta.env.BASE_URL}llms.txt`} />}
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'max-image-preview:large'} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="poqi" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    {socialImage && <meta property="og:image:alt" content={shareImageAlt} />}
+    {socialImage && shareImageWidth && <meta property="og:image:width" content={String(shareImageWidth)} />}
+    {socialImage && shareImageHeight && <meta property="og:image:height" content={String(shareImageHeight)} />}
+
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+    {socialImage && <meta name="twitter:image:alt" content={shareImageAlt} />}
+
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData).replaceAll('<', '\\u003c')} />}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
