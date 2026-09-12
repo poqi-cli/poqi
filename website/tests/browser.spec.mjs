@@ -32,10 +32,12 @@ test('theme previews, modal focus, platform keyboard navigation and clipboard', 
   await page.keyboard.press('Escape');
   await expect(page.locator('#image-viewer')).not.toBeVisible();
   await expect(page.locator('#main-full')).toBeFocused();
-  for (const [platform, file] of [['windows','windows-x86_64.zip'],['macos-arm','macos-arm64.tar.gz'],['macos-intel','macos-x86_64.tar.gz'],['linux','linux-x86_64.tar.gz']]) {
+  for (const [platform, file, label] of [['windows','windows-x86_64-setup.exe','Windows'],['macos-arm','macos-arm64.tar.gz','macOS Apple Silicon'],['macos-intel','macos-x86_64.tar.gz','macOS Intel'],['linux','linux-x86_64.tar.gz','Linux x64']]) {
     await page.locator(`[data-platform="${platform}"]`).click();
     await expect(page.locator('#download-link')).toHaveAttribute('href', new RegExp(`${file.replaceAll('.', '\\.')}$`));
+    await expect(page.locator('#download-link')).toHaveAttribute('aria-label', `Download for ${label}`);
   }
+  await expect(page.getByRole('link', {name:'Portable Windows ZIP'})).toHaveAttribute('href', /windows-x86_64\.zip$/);
   await page.locator('[data-platform="linux"]').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('[data-platform="windows"]')).toHaveAttribute('aria-selected', 'true');
@@ -50,9 +52,10 @@ test('content and all release platforms remain available without JavaScript', as
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:4321/poqi/');
   await expect(page.locator('h1')).toContainText('Your database.');
-  for (const file of ['windows-x86_64.zip','macos-arm64.tar.gz','macos-x86_64.tar.gz','linux-x86_64.tar.gz']) {
+  for (const file of ['windows-x86_64-setup.exe','macos-arm64.tar.gz','macos-x86_64.tar.gz','linux-x86_64.tar.gz']) {
     await expect(page.locator(`a[href$="${file}"]`).first()).toBeVisible();
   }
+  await expect(page.getByRole('link', {name:'Portable Windows ZIP'})).toHaveAttribute('href', /windows-x86_64\.zip$/);
   await context.close();
 });
 
@@ -72,6 +75,10 @@ test('guide navigation and installer details work on a narrow screen without Jav
   await page.getByRole('link', {name:'Installation & connection guide →'}).click();
   await expect(page).toHaveURL(/\/poqi\/getting-started\/$/);
   await expect(page.getByRole('heading', {level:1})).toContainText('Get started');
+  await expect(page.getByRole('link', {name:'Download for Windows'})).toHaveAttribute('href', /windows-x86_64-setup\.exe$/);
+  await expect(page.getByRole('link', {name:/portable Windows ZIP/})).toHaveAttribute('href', /windows-x86_64\.zip$/);
+  await expect(page.locator('#install-poqi')).toContainText('Start menu');
+  await expect(page.locator('#install-poqi')).toContainText('publisher as unknown');
   await page.getByRole('link', {name:'Troubleshoot', exact:true}).click();
   await expect(page).toHaveURL(/#troubleshooting$/);
   await page.locator('details summary').click();

@@ -52,11 +52,11 @@ Google does not use llms.txt for Search or its generative AI features. Keep the 
 
 ## Release updates and assets
 
-The download UI describes v1.0.0. Verify published asset names and sizes before updating `src/data/release.js`; the homepage, guide, client tabs and application metadata share it. Keep the guide's behavior descriptions aligned with `docs/connections.md` and `docs/current-status.md`. Archive links stay pinned to the reviewed release; optional terminal installer commands use the project's official `latest` assets.
+The download UI describes v1.0.1. Verify published asset names and sizes before updating `src/data/release.js`; the homepage, guide, client tabs and application metadata share it. Keep the guide's behavior descriptions aligned with `docs/connections.md` and `docs/current-status.md`. Archive links stay pinned to the reviewed release; optional terminal installer commands use the project's official `latest` assets.
 
-When v1.0.1 is actually published, make its `poqi-v1.0.1-windows-x86_64-setup.exe` the primary Windows download and keep the ZIP as the portable alternative. Update the Windows instructions to opening setup and launching poqi from Start, and verify the asset checksum and size before changing the shared release data. Do not point the current button at an unpublished installer.
+The primary Windows download is `poqi-v1.0.1-windows-x86_64-setup.exe`; the ZIP remains the portable alternative. The Windows instructions cover opening setup and launching poqi from Start, including the unsigned-publisher notice. For each update, verify the published asset checksum and size before changing the shared release data.
 
-Keep platform summaries short and put compatibility and credential-store details in the guide's system requirements. The v1.0.0 Linux archive's ELF version requirements include `GLIBC_2.39`; this is a binary requirement, not merely the build runner's version. Verify it again when updating releases. The main download button has a fixed size across platform choices; its accessible name preserves the selected Mac processor.
+Keep platform summaries short and put compatibility and credential-store details in the guide's system requirements. The verified v1.0.1 Linux archive's ELF version requirements include `GLIBC_2.39`; this is a binary requirement, not merely the build runner's version. Verify it again when updating releases. The main download button has a fixed size across platform choices; its accessible name preserves the selected Mac processor.
 
 The distribution is source available under the poqi No-Sale Source License 1.0. Keep that label and link accurate; do not describe the project as OSI open source.
 

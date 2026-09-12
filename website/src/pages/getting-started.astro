@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import dark from '../assets/poqi-dark.png';
-import { repo, version, platforms, downloadUrl, releaseUrl, licenseUrl } from '../data/release.js';
+import { repo, version, platforms, windowsPortable, downloadUrl, releaseUrl, licenseUrl } from '../data/release.js';
 
 const base = import.meta.env.BASE_URL;
 const title = 'Install poqi and connect to PostgreSQL — getting started';
@@ -40,7 +40,7 @@ const structuredData = {
     <section id="install-poqi" aria-labelledby="install-heading">
       <h2 id="install-heading">1. Install poqi</h2>
       <p>You need a terminal and access to a running PostgreSQL server. Keep the terminal at least 60 columns wide and 24 rows tall. The downloads include the ready-to-run application. Docker is only needed for the optional demo database generator.</p>
-      <p>Choose the archive for your operating system and processor. Downloads are free under the <a href={licenseUrl}>poqi No-Sale Source License 1.0</a>.</p>
+      <p>Choose the download for your operating system and processor. Downloads are free under the <a href={licenseUrl}>poqi No-Sale Source License 1.0</a>.</p>
       <h3 id="requirements">System requirements</h3>
       <p>Windows downloads are for 64-bit Intel and AMD PCs. On macOS, choose Apple Silicon for an M-series chip or Intel for an Intel processor. You can check the processor in About This Mac.</p>
       <p><strong>Linux:</strong> the current download is built and tested on Ubuntu 24.04 for 64-bit Intel and AMD processors. It requires glibc 2.39 or newer, a system library included in Ubuntu 24.04. Other Linux distributions have not been tested.</p>
@@ -54,11 +54,13 @@ const structuredData = {
           </article>
         ))}
       </div>
-      <p>On Windows, extract the ZIP, open a terminal in the extracted folder, and run <code>.\poqi.exe</code>. On macOS or Linux, extract the archive, open a terminal in that folder, and run <code>./poqi</code>. Download the matching <a href={`${repo}/releases/download/${version}/SHA256SUMS.txt`}>SHA-256 checksums</a> if you want to verify your archive. See the <a href={releaseUrl}>release notes and files</a> for the complete distribution.</p>
+      <p>On Windows, download the setup, open it, and complete the wizard. Then launch poqi from the Start menu. The setup is currently unsigned, so Windows identifies its publisher as unknown and may show a warning before opening it. Only continue if you trust the download.</p>
+      <p>Prefer a copy that does not use a setup wizard? Download the <a href={downloadUrl(windowsPortable)}>portable Windows ZIP ({windowsPortable.meta})</a>, extract it, and run <code>.\poqi.exe</code> from its folder.</p>
+      <p>On macOS or Linux, extract the archive, open a terminal in that folder, and run <code>./poqi</code>. Download the matching <a href={`${repo}/releases/download/${version}/SHA256SUMS.txt`}>SHA-256 checksums</a> if you want to verify your download. See the <a href={releaseUrl}>release notes and files</a> for the complete distribution.</p>
       <p><strong>macOS first launch:</strong> the current release is not Developer ID signed or notarized by Apple, so Gatekeeper may block a browser-downloaded copy. If you trust the official source, verify the archive against the linked checksums first. After attempting to launch poqi, you can allow that specific app in System Settings → Privacy &amp; Security → Open Anyway. Follow <a href="https://support.apple.com/en-gb/102445">Apple’s guidance for opening downloaded software</a>; managed Macs may restrict this choice.</p>
       <details>
-        <summary>Install poqi so the command works from any folder</summary>
-        <p>The ZIP is a portable application, not a setup wizard. Extracting it or running <code>poqi.exe</code> does not install a global command. The official installer downloads the latest release, verifies its checksum, and adds its folder to your user PATH so your terminal can find <code>poqi</code>. These commands download and run the project’s installer script.</p>
+        <summary>Install from a terminal instead</summary>
+        <p>The setup wizard is the straightforward Windows option. These commands download and run the project’s installer script if you prefer installing from a terminal. The script downloads the latest release, verifies its checksum, and adds its folder to your user PATH so your terminal can find <code>poqi</code>.</p>
         <p>On Windows, the default location is <code>%USERPROFILE%\.poqi\bin\poqi.exe</code>. After installation, close and reopen your terminal application, then run <code>poqi</code> from any folder.</p>
         <h3>Windows PowerShell</h3>
         <pre><code>{platforms.windows.command}</code></pre>

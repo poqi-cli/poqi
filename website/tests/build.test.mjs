@@ -53,7 +53,13 @@ test('indexable HTML contains canonical, social metadata and real product conten
   assert.match(html, /Free download/);
   assert.equal(app.isAccessibleForFree, true);
   assert.ok(!('codeRepository' in app) && !('programmingLanguage' in app), 'Source-code properties do not belong to SoftwareApplication');
-  assert.ok(app.downloadUrl.length === 4 && app.downloadUrl.every(url => /releases\/download\/.+\.(zip|gz)$/.test(url)));
+  assert.deepEqual(app.downloadUrl.map(url => new URL(url).pathname.split('/').at(-1)), [
+    'poqi-v1.0.1-windows-x86_64-setup.exe',
+    'poqi-v1.0.1-macos-arm64.tar.gz',
+    'poqi-v1.0.1-macos-x86_64.tar.gz',
+    'poqi-v1.0.1-linux-x86_64.tar.gz',
+  ]);
+  assert.doesNotMatch(JSON.stringify(app.downloadUrl), /windows-x86_64\.zip/, 'Structured data lists primary downloads only');
   await assertLocalUrlExists(app.softwareHelp.url);
   await assertLocalUrlExists(app.image);
 });
@@ -92,7 +98,7 @@ test('sitemap exposes the canonical homepage and excludes error pages', async ()
 });
 
 test('AI index is discoverable and release documentation matches the actual downloads', async () => {
-  const { version, platforms, downloadUrl } = await import('../src/data/release.js');
+  const { version, platforms, windowsPortable, downloadUrl } = await import('../src/data/release.js');
   const index = await readFile(new URL('llms.txt', output), 'utf8');
   assert.match(index, /^# poqi\n\n> /);
   assert.ok(index.includes(`Current website download version: ${version}`));
@@ -100,6 +106,11 @@ test('AI index is discoverable and release documentation matches the actual down
   for (const doc of [html, guide]) assert.match(doc, /rel="describedby" type="text\/plain" href="\/poqi\/llms\.txt"/);
   assert.doesNotMatch(errorHtml, /rel="describedby"/);
   for (const platform of Object.values(platforms)) assert.ok(index.includes(downloadUrl(platform)));
+  const indexedDownloads = index.match(/## Downloads\n\n([\s\S]+?)\n\n## Optional/)[1];
+  assert.equal((indexedDownloads.match(/^- \[/gm) || []).length, 4, 'AI index must list the four primary downloads');
+  assert.ok(!indexedDownloads.includes(downloadUrl(windowsPortable)), 'Portable ZIP is secondary, not an AI-index primary download');
+  assert.ok(html.includes(downloadUrl(windowsPortable)), 'Homepage omits the portable Windows ZIP');
+  assert.ok(guide.includes(downloadUrl(windowsPortable)), 'Guide omits the portable Windows ZIP');
   for (const name of ['README.md', 'docs/connections.md', 'docs/current-status.md']) {
     assert.ok(index.includes(`raw.githubusercontent.com/poqi-cli/poqi/${version}/${name}`));
   }
