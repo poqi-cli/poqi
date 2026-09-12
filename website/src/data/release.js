@@ -1,5 +1,5 @@
 export const repo = 'https://github.com/poqi-cli/poqi';
-export const version = 'v1.0.1';
+export const version = 'v1.0.2';
 const shellUnix = "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/poqi-cli/poqi/releases/latest/download/install.sh | sh";
 export const platforms = {
   windows: {

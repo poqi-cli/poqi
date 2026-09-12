@@ -54,10 +54,10 @@ test('indexable HTML contains canonical, social metadata and real product conten
   assert.equal(app.isAccessibleForFree, true);
   assert.ok(!('codeRepository' in app) && !('programmingLanguage' in app), 'Source-code properties do not belong to SoftwareApplication');
   assert.deepEqual(app.downloadUrl.map(url => new URL(url).pathname.split('/').at(-1)), [
-    'poqi-v1.0.1-windows-x86_64-setup.exe',
-    'poqi-v1.0.1-macos-arm64.tar.gz',
-    'poqi-v1.0.1-macos-x86_64.tar.gz',
-    'poqi-v1.0.1-linux-x86_64.tar.gz',
+    'poqi-v1.0.2-windows-x86_64-setup.exe',
+    'poqi-v1.0.2-macos-arm64.tar.gz',
+    'poqi-v1.0.2-macos-x86_64.tar.gz',
+    'poqi-v1.0.2-linux-x86_64.tar.gz',
   ]);
   assert.doesNotMatch(JSON.stringify(app.downloadUrl), /windows-x86_64\.zip/, 'Structured data lists primary downloads only');
   await assertLocalUrlExists(app.softwareHelp.url);
