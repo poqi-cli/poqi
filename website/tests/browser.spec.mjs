@@ -31,6 +31,8 @@ for (const [url, enabled] of [
       expect(JSON.parse(await beacon.getAttribute('data-cf-beacon'))).toEqual({token:'bc5555ffaf89411e90c97af199873e80'});
     }
     expect(beacons).toHaveLength(enabled ? 1 : 0);
+    // Drain asset handlers before Playwright disposes the request fixture.
+    await page.unrouteAll({behavior:'wait'});
   });
 }
 
