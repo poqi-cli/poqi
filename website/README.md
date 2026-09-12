@@ -26,6 +26,12 @@ The build writes deployable files to `dist/`. The browser suite starts its own p
 
 For visual review and Lighthouse, start `npm run preview` and open `http://127.0.0.1:4321/poqi/`. In another terminal, run `npm run audit`. This requires Chrome (set `CHROME_PATH` if it is not discovered automatically), performs three runs for each default mobile and desktop Lighthouse preset, and writes reports to the repository's ignored `artifacts/website-lighthouse/` directory. To measure the published site, use `npm run audit -- https://poqi-cli.github.io/poqi/`. On Windows, use `npm.cmd` if PowerShell's npm wrapper consumes arguments after `--`.
 
+## Website analytics
+
+The published site uses free [Cloudflare Web Analytics](https://developers.cloudflare.com/web-analytics/about/). In the Cloudflare dashboard, open **Analytics → Web analytics → poqi-cli.github.io** to view visits, page views, referrers, countries, devices and page performance. Filter by `/poqi/` paths when needed. Collection starts after installation; these metrics do not identify individual visitors or prove completed downloads or installations. GitHub release asset download counts remain separate.
+
+The shared layout loads Cloudflare's module beacon only on `https://poqi-cli.github.io/poqi/` and its subpages. Local previews and copies hosted elsewhere do not send analytics. The beacon's site token is a public identifier intended for page source, not an account API credential. To change the destination site, copy its token from Cloudflare's **Manage site** snippet and update the layout's origin/path guard together. Removing the beacon block disables collection. No DNS or hosting migration is needed.
+
 ## Hosting and search indexing
 
 The Astro `site`, `base`, and trailing-slash settings target the GitHub Pages project site. In repository Settings → Pages, set Source to **GitHub Actions**. Follow the repository's feature-branch → `dev` → `main` contribution flow. The `Website` workflow validates pull requests and publishes only `website/dist/` from `main` in `poqi-cli/poqi`. It can also be dispatched manually on `main`. Its Node build and deployment are separate from the Rust release workflow. The website package itself does not publish anything.
