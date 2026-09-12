@@ -66,5 +66,15 @@ const searchConsoleVerification = import.meta.env.GOOGLE_SITE_VERIFICATION?.trim
   </head>
   <body>
     <slot />
+    <script is:inline>
+      // Keep local previews and copies of the site out of production analytics.
+      if (location.origin === 'https://poqi-cli.github.io' && location.pathname.startsWith('/poqi/')) {
+        const beacon = document.createElement('script');
+        beacon.type = 'module';
+        beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+        beacon.dataset.cfBeacon = JSON.stringify({ token: 'bc5555ffaf89411e90c97af199873e80' });
+        document.body.appendChild(beacon);
+      }
+    </script>
   </body>
 </html>
