@@ -1,5 +1,39 @@
 import { test, expect } from '@playwright/test';
 
+for (const [url, enabled] of [
+  ['https://poqi-cli.github.io/poqi/', true],
+  ['https://poqi-cli.github.io/poqi/getting-started/', true],
+  ['http://127.0.0.1:4321/poqi/', false],
+  ['https://example.invalid/poqi/', false],
+  ['https://poqi-cli.github.io/other-project/', false],
+]) {
+  test(`analytics destination is restricted at ${url}`, async ({ page, request }) => {
+    const beacons = [];
+    // Exercise the built pages under real-looking origins without sending telemetry.
+    await page.route('**/*', async route => {
+      const target = new URL(route.request().url());
+      if (target.href === 'https://static.cloudflareinsights.com/beacon.min.js') {
+        beacons.push(target.href);
+        await route.fulfill({contentType:'text/javascript', body:'window.testBeaconLoaded = true;'});
+      } else if (target.origin === new URL(url).origin) {
+        const path = target.pathname.startsWith('/poqi/') ? target.pathname : '/poqi/';
+        await route.fulfill({response:await request.get(`http://127.0.0.1:4321${path}${target.search}`)});
+      } else {
+        await route.abort();
+      }
+    });
+    await page.goto(url);
+    const beacon = page.locator('script[data-cf-beacon]');
+    await expect(beacon).toHaveCount(enabled ? 1 : 0);
+    if (enabled) {
+      await expect.poll(() => page.evaluate(() => window.testBeaconLoaded)).toBe(true);
+      await expect(beacon).toHaveAttribute('type', 'module');
+      expect(JSON.parse(await beacon.getAttribute('data-cf-beacon'))).toEqual({token:'bc5555ffaf89411e90c97af199873e80'});
+    }
+    expect(beacons).toHaveLength(enabled ? 1 : 0);
+  });
+}
+
 for (const width of [360, 390, 768, 1280, 1440]) {
   test(`responsive assets and anchors at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
