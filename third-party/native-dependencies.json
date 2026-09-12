@@ -45,16 +45,5 @@
       { "path": "src/polyfill/once_cell/LICENSE-MIT", "sha256": "6EE2ED6C77710DE911761ACD5FC1AD1DA00F476BEB1A7EF27E78C2D1858DEAFC" },
       { "path": "third_party/fiat/LICENSE", "sha256": "9EACBCB81BE660840C714A560A9D65BA07913DB98DD4BAF969F78DD499FDD60F" }
     ]
-  },
-  {
-    "package": "libdbus-sys",
-    "version": "0.2.7",
-    "source_files": [
-      { "path": "build_vendored.rs", "sha256": "B13299ABCC90D881DEB27ADB39E13A6F10DE787068D16CC08D6BFFD8C8E2D881" },
-      { "path": "vendor/dbus/COPYING", "sha256": "E61807CD1C32FF4E7BD5B4B61DD21997C6DC5642CF19316124FE38D50E1F9FA3" },
-      { "path": "vendor/dbus/dbus/dbus-hash.c", "sha256": "9C0F63103B5673C1D0B6C21F419B2FC8605EF39FAA0F2B0CCF212D02174272CC" },
-      { "path": "vendor/dbus/dbus/dbus-sha.c", "sha256": "0F17343877056F7BC46A2A7911FCD5DAC1F8CFE213DED79F524674D66AFC5F4C" },
-      { "path": "vendor/dbus/dbus/dbus-nonce.c", "sha256": "6352BB3092FCC78D58B598908AE5BDA674C27A591C038360C718B32D3F494AC6" }
-    ]
   }
 ]

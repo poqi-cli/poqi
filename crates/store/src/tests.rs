@@ -433,6 +433,34 @@ fn missing_initialized_key_fails_without_creating_a_replacement() {
 }
 
 #[test]
+fn unavailable_secure_storage_fails_closed_without_mutation() {
+    let harness = TestStore::new();
+    let uri = "postgres://user:secret@localhost/app";
+    harness
+        .store()
+        .connection_profiles()
+        .upsert(&NewConnectionProfile::new("primary", uri))
+        .expect("store profile");
+
+    let unavailable = Store::new_with_unavailable_test_key(Some(harness.db_path()));
+    let error = unavailable
+        .connection_profiles()
+        .list()
+        .expect_err("unavailable secure storage must fail");
+    assert!(format!("{error:#}").contains("test secure storage is unavailable"));
+    assert_eq!(
+        harness
+            .store()
+            .connection_profiles()
+            .get("primary")
+            .expect("read unchanged profile")
+            .expect("profile exists")
+            .uri,
+        uri
+    );
+}
+
+#[test]
 fn empty_store_can_attempt_key_creation_after_key_loss() {
     let harness = TestStore::new();
     let profiles = harness.store().connection_profiles();
@@ -461,9 +489,9 @@ fn empty_store_can_attempt_key_creation_after_key_loss() {
 }
 
 #[cfg(any(windows, target_os = "linux", target_os = "macos"))]
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "requires an unlocked native operating-system credential store"]
-fn native_keyring_round_trip_smoke() {
+async fn native_keyring_round_trip_smoke() {
     struct NativeKeyCleanup(String);
     impl Drop for NativeKeyCleanup {
         fn drop(&mut self) {
@@ -510,11 +538,50 @@ fn native_keyring_round_trip_smoke() {
     assert!(!bytes
         .windows(b"native-smoke-secret".len())
         .any(|part| part == b"native-smoke-secret"));
-    reopened
+
+    crate::crypto::delete_native_key_for_test(&store_id)
+        .expect("remove key while encrypted data remains");
+    let missing = Store::new(Some(path));
+    let error = missing
         .connection_profiles()
-        .delete("native-smoke")
+        .list()
+        .expect_err("encrypted store must fail closed when its native key is missing");
+    assert!(format!("{error:#}").contains("secure-storage key is missing"));
+}
+
+#[cfg(any(windows, target_os = "linux", target_os = "macos"))]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[ignore = "requires an unlocked native operating-system credential store"]
+async fn native_keyring_empty_store_recovers_after_key_loss() {
+    struct NativeKeyCleanup(String);
+    impl Drop for NativeKeyCleanup {
+        fn drop(&mut self) {
+            let _ = crate::crypto::delete_native_key_for_test(&self.0);
+        }
+    }
+
+    let temp = TempDir::new().expect("temp native-keyring store");
+    let path = temp.path().join("native-keyring-recovery.sqlite");
+    let store = Store::new(Some(path.clone()));
+    let uri = "postgres://native-user:native-smoke-secret@localhost/native";
+    store
+        .connection_profiles()
+        .insert(&NewConnectionProfile::new("temporary", uri))
+        .expect("create native key");
+    let store_id: String = Connection::open(&path)
+        .expect("open native-keyring database")
+        .query_row(
+            "SELECT value FROM store_metadata WHERE key = 'store.id'",
+            [],
+            |row| row.get(0),
+        )
+        .expect("read store identity");
+    let _cleanup = NativeKeyCleanup(store_id.clone());
+    store
+        .connection_profiles()
+        .delete("temporary")
         .expect("delete final profile");
-    drop(reopened);
+    drop(store);
     crate::crypto::delete_native_key_for_test(&store_id)
         .expect("simulate lost key for empty store");
     let recovered = Store::new(Some(path.clone()));
@@ -532,4 +599,104 @@ fn native_keyring_round_trip_smoke() {
             .uri,
         uri
     );
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+#[ignore = "requires an intentionally locked Linux Secret Service session"]
+fn linux_locked_keyring_fails_closed() {
+    let temp = TempDir::new().expect("temp locked-keyring store");
+    let path = temp.path().join("locked-keyring.sqlite");
+    let store = Store::new(Some(path.clone()));
+    let error = store
+        .connection_profiles()
+        .insert(&NewConnectionProfile::new(
+            "locked",
+            "postgres://user:must-not-persist@localhost/app",
+        ))
+        .expect_err("locked native credential store must reject persistence");
+    assert!(format!("{error:#}").contains("native secure storage"));
+
+    let raw = Connection::open(path).expect("open rejected store");
+    let rows: i64 = raw
+        .query_row("SELECT count(*) FROM connection_profiles", [], |row| {
+            row.get(0)
+        })
+        .expect("count rejected profiles");
+    assert_eq!(rows, 0);
+}
+
+#[cfg(target_os = "linux")]
+fn linux_keyring_compatibility_store_path() -> std::path::PathBuf {
+    std::env::var_os("POQI_KEYRING_COMPAT_STORE")
+        .map(std::path::PathBuf::from)
+        .expect("POQI_KEYRING_COMPAT_STORE must name the shared compatibility database")
+}
+
+#[cfg(target_os = "linux")]
+fn store_id(path: &std::path::Path) -> String {
+    Connection::open(path)
+        .expect("open compatibility database")
+        .query_row(
+            "SELECT value FROM store_metadata WHERE key = 'store.id'",
+            [],
+            |row| row.get(0),
+        )
+        .expect("read compatibility store identity")
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+#[ignore = "run by the isolated Linux keyring compatibility harness"]
+fn linux_keyring_compatibility_seed_with_selected_backend() {
+    let path = linux_keyring_compatibility_store_path();
+    let legacy_uri = "postgres://legacy:legacy-secret@localhost/app";
+    Store::new_with_test_key(Some(path.clone()), TEST_KEY)
+        .connection_profiles()
+        .insert(&NewConnectionProfile::new("legacy", legacy_uri))
+        .expect("write legacy fixture with deterministic key");
+    crate::crypto::store_native_key_for_test(&store_id(&path), &TEST_KEY)
+        .expect("store fixture key with selected native backend");
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+#[ignore = "run by the isolated Linux keyring compatibility harness"]
+fn linux_keyring_compatibility_read_and_write_with_selected_backend() {
+    let path = linux_keyring_compatibility_store_path();
+    let store = Store::new(Some(path));
+    assert_eq!(
+        store
+            .connection_profiles()
+            .get("legacy")
+            .expect("read legacy profile")
+            .expect("legacy profile exists")
+            .uri,
+        "postgres://legacy:legacy-secret@localhost/app"
+    );
+    store
+        .connection_profiles()
+        .insert(&NewConnectionProfile::new(
+            "async",
+            "postgres://async:async-secret@localhost/app",
+        ))
+        .expect("write profile with selected native backend");
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+#[ignore = "run by the isolated Linux keyring compatibility harness"]
+fn linux_keyring_compatibility_verify_with_selected_backend() {
+    let path = linux_keyring_compatibility_store_path();
+    let store = Store::new(Some(path.clone()));
+    let profiles = store
+        .connection_profiles()
+        .list()
+        .expect("read compatibility profiles");
+    assert_eq!(profiles.len(), 2);
+    assert!(profiles.iter().any(|profile| {
+        profile.name == "async" && profile.uri == "postgres://async:async-secret@localhost/app"
+    }));
+    crate::crypto::delete_native_key_for_test(&store_id(&path))
+        .expect("delete compatibility test key");
 }

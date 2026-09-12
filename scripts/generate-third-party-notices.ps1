@@ -44,6 +44,20 @@ if ($cargoAboutVersion -cne "cargo-about 0.9.1") {
     throw "Release notices require cargo-about 0.9.1; found '$cargoAboutVersion'."
 }
 
+if ($TargetTriple -ceq "x86_64-unknown-linux-gnu") {
+    $linuxTree = & cargo tree --locked --manifest-path $manifestPath `
+        --target $TargetTriple --edges normal --prefix none -p poqi-app
+    if ($LASTEXITCODE -ne 0) {
+        throw "cargo tree failed while checking the Linux credential-store dependency graph."
+    }
+    $forbiddenLinuxDependencies = @(
+        $linuxTree | Where-Object { $_ -cmatch '^(dbus-secret-service|dbus|libdbus-sys) v' }
+    )
+    if ($forbiddenLinuxDependencies.Count -ne 0) {
+        throw "Linux release graph contains the previous D-Bus credential-store backend: $($forbiddenLinuxDependencies -join ', '). Review its bundled source and licenses before releasing."
+    }
+}
+
 $metadataJson = & cargo metadata --format-version 1 --locked --manifest-path $manifestPath
 if ($LASTEXITCODE -ne 0) {
     throw "cargo metadata failed while checking native dependency versions."

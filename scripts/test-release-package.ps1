@@ -74,8 +74,7 @@ try {
         "zstd-sys bundled Zstandard",
         "bzip2-sys bundled libbzip2",
         "libsqlite3-sys bundled SQLite",
-        "ring native cryptography code",
-        "libdbus-sys bundled D-Bus (Linux only)"
+        "ring native cryptography code"
     )
     foreach ($section in $requiredNoticeSections) {
         if (-not $notices.Contains($section, [StringComparison]::Ordinal)) {

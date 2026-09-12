@@ -112,9 +112,11 @@ impl KeyManager {
 
     fn store_native(&self, store_id: &str, key: &[u8; KEY_BYTES]) -> Result<()> {
         match self.source {
-            KeySource::Native => keyring_entry(store_id)?
-                .set_secret(key)
-                .context("failed to save the connection encryption key in native secure storage"),
+            KeySource::Native => native_keyring_operation(|| {
+                keyring_entry(store_id)?.set_secret(key).context(
+                    "failed to save the connection encryption key in native secure storage",
+                )
+            }),
             #[cfg(any(test, feature = "test-support"))]
             KeySource::Fixed(_) => Ok(()),
             #[cfg(any(test, feature = "test-support"))]
@@ -176,7 +178,7 @@ pub(crate) fn decrypt(
 }
 
 fn load_native(store_id: &str) -> Result<Option<[u8; KEY_BYTES]>> {
-    match keyring_entry(store_id)?.get_secret() {
+    native_keyring_operation(|| match keyring_entry(store_id)?.get_secret() {
         Ok(secret) => {
             let key: [u8; KEY_BYTES] = secret.try_into().map_err(|secret: Vec<u8>| {
                 anyhow::anyhow!(
@@ -189,7 +191,7 @@ fn load_native(store_id: &str) -> Result<Option<[u8; KEY_BYTES]>> {
         Err(keyring::Error::NoEntry) => Ok(None),
         Err(error) => Err(error)
             .context("failed to read the connection encryption key from native secure storage"),
-    }
+    })
 }
 
 fn keyring_entry(store_id: &str) -> Result<keyring::Entry> {
@@ -197,11 +199,43 @@ fn keyring_entry(store_id: &str) -> Result<keyring::Entry> {
         .context("failed to access native secure storage for connection encryption")
 }
 
+#[cfg(target_os = "linux")]
+fn native_keyring_operation<T, F>(operation: F) -> Result<T>
+where
+    T: Send,
+    F: FnOnce() -> Result<T> + Send,
+{
+    std::thread::scope(|scope| {
+        let worker = std::thread::Builder::new()
+            .name("poqi-native-keyring".to_string())
+            .spawn_scoped(scope, operation)
+            .context("failed to start native secure-storage worker thread")?;
+        worker
+            .join()
+            .map_err(|_| anyhow::anyhow!("native secure-storage worker thread panicked"))?
+    })
+}
+
+#[cfg(not(target_os = "linux"))]
+fn native_keyring_operation<T, F>(operation: F) -> Result<T>
+where
+    F: FnOnce() -> Result<T>,
+{
+    operation()
+}
+
 #[cfg(all(test, any(windows, target_os = "linux", target_os = "macos")))]
 pub(crate) fn delete_native_key_for_test(store_id: &str) -> Result<()> {
-    keyring_entry(store_id)?
-        .delete_credential()
-        .context("failed to delete native test key")
+    native_keyring_operation(|| {
+        keyring_entry(store_id)?
+            .delete_credential()
+            .context("failed to delete native test key")
+    })
+}
+
+#[cfg(all(test, target_os = "linux"))]
+pub(crate) fn store_native_key_for_test(store_id: &str, key: &[u8; KEY_BYTES]) -> Result<()> {
+    KeyManager::native().store_native(store_id, key)
 }
 
 #[cfg(test)]
