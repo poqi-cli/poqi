@@ -104,8 +104,8 @@ const MAC_RUNTIME_ARTIFACTS: &[RuntimeArtifact] = &[RuntimeArtifact {
     output_sha256: "10b6793bc75d4c3c675c529b3f2a9896cdd3a1f9fe50c600fe75036fb171a610",
 }];
 
-const LINUX_RUNTIME_ARTIFACTS: &[RuntimeArtifact] = &[RuntimeArtifact {
-    inner_path: "onnxruntime-linux-x64-1.23.0/lib/libonnxruntime.so",
+pub(super) const LINUX_RUNTIME_ARTIFACTS: &[RuntimeArtifact] = &[RuntimeArtifact {
+    inner_path: "onnxruntime-linux-x64-1.23.0/lib/libonnxruntime.so.1.23.0",
     output_path: "lib/libonnxruntime.so",
     output_sha256: "98b0253652d36c706cd9b873f3e8dc74e107c26cf9694672fb4d88da1c00f250",
 }];

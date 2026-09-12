@@ -336,3 +336,71 @@ fn format_mib(bytes: u64) -> String {
     let (whole, tenths) = to_mib_components(bytes);
     format!("{whole}.{tenths:01} MiB")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{extract_tgz_stream, join_relative, verify_artifacts};
+    use crate::runtime::bootstrap::specs::{RuntimeArtifact, LINUX_RUNTIME_ARTIFACTS};
+    use sha2::{Digest, Sha256};
+    use std::io::Cursor;
+    use tar::{Builder, EntryType, Header};
+
+    const PAYLOAD: &[u8] = b"versioned runtime payload";
+    const PAYLOAD_SHA256: &str = "241c5c4ae3e2a3bd15d89e7d5d18465afc41d3f9da2d3779b5680afe2ffa0a50";
+    const TEST_ARTIFACTS: &[RuntimeArtifact] = &[RuntimeArtifact {
+        inner_path: LINUX_RUNTIME_ARTIFACTS[0].inner_path,
+        output_path: LINUX_RUNTIME_ARTIFACTS[0].output_path,
+        output_sha256: PAYLOAD_SHA256,
+    }];
+
+    #[tokio::test]
+    async fn tgz_extracts_versioned_runtime_when_symlink_entry_comes_first() {
+        let mut builder = Builder::new(Vec::new());
+        let mut symlink_header = Header::new_gnu();
+        symlink_header.set_entry_type(EntryType::Symlink);
+        symlink_header.set_size(0);
+        symlink_header.set_mode(0o777);
+        symlink_header.set_cksum();
+        builder
+            .append_link(
+                &mut symlink_header,
+                "onnxruntime-linux-x64-1.23.0/lib/libonnxruntime.so",
+                "libonnxruntime.so.1",
+            )
+            .expect("symlink entry should be appended");
+
+        let mut file_header = Header::new_gnu();
+        file_header.set_size(PAYLOAD.len() as u64);
+        file_header.set_mode(0o755);
+        file_header.set_cksum();
+        builder
+            .append_data(
+                &mut file_header,
+                LINUX_RUNTIME_ARTIFACTS[0].inner_path,
+                PAYLOAD,
+            )
+            .expect("versioned runtime entry should be appended");
+        let archive = builder.into_inner().expect("tar archive should finish");
+
+        let destination = tempfile::tempdir().expect("temporary directory should be created");
+        let extracted = extract_tgz_stream(
+            Cursor::new(archive),
+            destination.path(),
+            super::build_artifact_targets(TEST_ARTIFACTS),
+        )
+        .expect("versioned runtime should be extracted");
+
+        assert_eq!(extracted, PAYLOAD.len() as u64);
+        assert_eq!(
+            LINUX_RUNTIME_ARTIFACTS[0].output_path,
+            "lib/libonnxruntime.so"
+        );
+        let output = join_relative(destination.path(), LINUX_RUNTIME_ARTIFACTS[0].output_path);
+        let contents = std::fs::read(&output).expect("runtime output should exist");
+        assert_eq!(contents, PAYLOAD);
+        assert_eq!(format!("{:x}", Sha256::digest(&contents)), PAYLOAD_SHA256);
+        verify_artifacts(destination.path(), TEST_ARTIFACTS, None)
+            .await
+            .expect("extracted runtime checksum should verify");
+    }
+}

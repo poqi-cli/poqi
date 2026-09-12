@@ -67,3 +67,5 @@ Keep platform summaries short and put compatibility and credential-store details
 The distribution is source available under the poqi No-Sale Source License 1.0. Keep that label and link accurate; do not describe the project as OSI open source.
 
 Original PNG screenshots stay in `src/assets/` for full-size viewing. Astro generates responsive WebP variants for the page, including all six themes. Screenshots show a real terminal runtime with synthetic demonstration data; they are not performance benchmarks.
+
+The short videos in `public/demos/` record the published v1.0.1 Linux application using synthetic PostgreSQL product data. Terminal output was captured and rendered at 1044 × 608, 12 fps, without audio. The semantic demo used the supported `ORT_DYLIB_PATH` override to the checksum-verified versioned ONNX library because v1.0.1 selected an archive symlink during automatic Linux setup. The recordings demonstrate application behavior, not setup or benchmark timing. Keep the WebM, MP4 and poster variants together. Native controls and `preload="none"` defer video bytes until playback; supporting browsers also defer posters through `loading="lazy"`.
