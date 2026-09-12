@@ -74,12 +74,16 @@ jobs:
         include:
           - os: ubuntu-24.04
             target: linux-x86_64
+            rust_target: x86_64-unknown-linux-gnu
           - os: macos-15
             target: macos-arm64
+            rust_target: aarch64-apple-darwin
           - os: macos-15-intel
             target: macos-x86_64
+            rust_target: x86_64-apple-darwin
           - os: windows-2022
             target: windows-x86_64
+            rust_target: x86_64-pc-windows-msvc
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -88,6 +92,14 @@ jobs:
       - uses: Swatinem/rust-cache@49a0bdc70d2e1b713ca9e2869b211fcce03d3c1c # v2
       - name: Build release binary
         run: cargo build --release --locked --bin poqi
+      - name: Install pinned license report tool
+        run: cargo install --locked --version 0.9.1 --features cli cargo-about
+      - name: Generate third-party notices
+        shell: pwsh
+        run: >-
+          ./scripts/generate-third-party-notices.ps1
+          -TargetTriple "${{ matrix.rust_target }}"
+          -OutputPath target/release/THIRD-PARTY-LICENSES.txt
       - name: Stage package
         shell: bash
         run: |
@@ -98,7 +110,7 @@ jobs:
           else
             cp target/release/poqi "dist/$PACKAGE/"
           fi
-          cp README.md CHANGELOG.md LICENSE "dist/$PACKAGE/"
+          cp README.md CHANGELOG.md LICENSE target/release/THIRD-PARTY-LICENSES.txt "dist/$PACKAGE/"
       - name: Archive Unix package
         if: runner.os != 'Windows'
         shell: bash

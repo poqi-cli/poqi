@@ -1,0 +1,60 @@
+[
+  {
+    "package": "pg_query",
+    "version": "6.1.1",
+    "source_files": [
+      { "path": "libpg_query/Makefile", "sha256": "93544722C060CE91F272BAAF13ED1AC98E7D0F7762CEDC988930237A2A132E97" },
+      { "path": "libpg_query/vendor/protobuf-c/protobuf-c.c", "sha256": "4FF2AFDE88ECD4EA063C808C65A4EEC11FBA6B5EB8E53A8EE6185867B795A50D" },
+      { "path": "libpg_query/vendor/xxhash/xxhash.c", "sha256": "343F463D6FE389CC4C0647531CF7536246DA1DFB9E894AA19B1D69002182E41A" },
+      { "path": "libpg_query/src/postgres/src_port_snprintf.c", "sha256": "D6C05028CF076D7CA21E07488BC271C93F859F258F2325D1E6A4EEA4F43CE75F" },
+      { "path": "libpg_query/src/postgres/src_port_strlcpy.c", "sha256": "E3ACB38C20B1AEBF1BD25AA1527DBECC0F857AD29C9596326F297AB4884F0E0B" },
+      { "path": "libpg_query/src/postgres/src_backend_parser_gram.c", "sha256": "347DC92A939D312AC6E727F4018583314B181765F532427D2F2D365D552ACE5A" },
+      { "path": "libpg_query/src/postgres/src_pl_plpgsql_src_pl_gram.c", "sha256": "9EF438FF195798F682404F5D0446BFEE0DE0EA20407CF95C26A91E3BAA1604FB" },
+      { "path": "libpg_query/src/postgres/src_common_wchar.c", "sha256": "3F03E28D2D34336F27766FED29F02331208D0BC66F5F5B5DEE24C097878D0E46" }
+    ]
+  },
+  {
+    "package": "zstd-sys",
+    "version": "2.0.16+zstd.1.5.7",
+    "source_files": [
+      { "path": "zstd/LICENSE", "sha256": "7055266497633C9025B777C78EB7235AF13922117480ED5C674677ADC381C9D8" }
+    ]
+  },
+  {
+    "package": "bzip2-sys",
+    "version": "0.1.13+1.0.8",
+    "source_files": [
+      { "path": "bzip2-1.0.8/LICENSE", "sha256": "C6DBBF828498BE844A89EAA3B84ADBAB3199E342EB5CB2ED2F0D4BA7EC0F38A3" }
+    ]
+  },
+  {
+    "package": "libsqlite3-sys",
+    "version": "0.27.0",
+    "source_files": [
+      { "path": "sqlite3/sqlite3.c", "sha256": "7B31410F2E3BB48BE92D6C4BA6450034A9BD314C99AE9F9A06327091F005668C" }
+    ]
+  },
+  {
+    "package": "ring",
+    "version": "0.17.14",
+    "source_files": [
+      { "path": "LICENSE", "sha256": "B3D734001A94EFFF3579978D953391AA7115F877657D25EB54037A43875D078A" },
+      { "path": "LICENSE-BoringSSL", "sha256": "005FC765DDC5115DA796CCA915BAA9557ABAE13FF35E0A47C47AFFC56F6C414D" },
+      { "path": "LICENSE-other-bits", "sha256": "F025CCFB7DFB6BDFEDC75CA0F67ACC69E6FB4998143D834F7C2F38A29989680F" },
+      { "path": "src/polyfill/once_cell/LICENSE-APACHE", "sha256": "A60EEA817514531668D7E00765731449FE14D059D3249E0BC93B36DE45F759F2" },
+      { "path": "src/polyfill/once_cell/LICENSE-MIT", "sha256": "6EE2ED6C77710DE911761ACD5FC1AD1DA00F476BEB1A7EF27E78C2D1858DEAFC" },
+      { "path": "third_party/fiat/LICENSE", "sha256": "9EACBCB81BE660840C714A560A9D65BA07913DB98DD4BAF969F78DD499FDD60F" }
+    ]
+  },
+  {
+    "package": "libdbus-sys",
+    "version": "0.2.7",
+    "source_files": [
+      { "path": "build_vendored.rs", "sha256": "B13299ABCC90D881DEB27ADB39E13A6F10DE787068D16CC08D6BFFD8C8E2D881" },
+      { "path": "vendor/dbus/COPYING", "sha256": "E61807CD1C32FF4E7BD5B4B61DD21997C6DC5642CF19316124FE38D50E1F9FA3" },
+      { "path": "vendor/dbus/dbus/dbus-hash.c", "sha256": "9C0F63103B5673C1D0B6C21F419B2FC8605EF39FAA0F2B0CCF212D02174272CC" },
+      { "path": "vendor/dbus/dbus/dbus-sha.c", "sha256": "0F17343877056F7BC46A2A7911FCD5DAC1F8CFE213DED79F524674D66AFC5F4C" },
+      { "path": "vendor/dbus/dbus/dbus-nonce.c", "sha256": "6352BB3092FCC78D58B598908AE5BDA674C27A591C038360C718B32D3F494AC6" }
+    ]
+  }
+]

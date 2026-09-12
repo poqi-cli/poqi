@@ -1,0 +1,2 @@
+# Preserve trailing spaces in verbatim upstream license notices.
+third-party/native-licenses.txt whitespace=-blank-at-eol
